@@ -25,7 +25,13 @@ export async function signupAction(
   const turnstileToken = formData.get("turnstile_token") as string | null;
   const turnstileResult = await verifyTurnstile(turnstileToken);
   if (!turnstileResult.ok) {
-    return { status: "error", error: turnstileResult.error ?? t("errors.turnstileFailed") };
+    return {
+      status: "error",
+      error:
+        turnstileResult.code === "not_configured"
+          ? t("errors.captchaNotConfigured")
+          : t("errors.turnstileFailed"),
+    };
   }
 
   const parsed = signupSchema.safeParse({
@@ -93,8 +99,9 @@ export async function signupAction(
   });
 
   if (error) {
-    console.error("signupAction error:", error.message);
-    return { status: "error", error: t("errors.signupFailed") };
+    console.error("signupAction error:", error.message, error);
+    // Surface the actual error for debugging (remove in production if needed)
+    return { status: "error", error: `${t("errors.signupFailed")}: ${error.message}` };
   }
 
   if (!data.user) {

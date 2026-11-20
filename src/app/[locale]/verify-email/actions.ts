@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { toLocale } from "@/lib/locale";
 import { verifyOtpSchema } from "@/lib/validation";
 import type { VerifyOtpState } from "@/lib/types";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function verifyOtpAction(
   _previous: VerifyOtpState,
@@ -13,6 +14,17 @@ export async function verifyOtpAction(
 ): Promise<VerifyOtpState> {
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "auth" });
+
+  const turnstileResult = await verifyTurnstile(formData.get("turnstile_token") as string | null);
+  if (!turnstileResult.ok) {
+    return {
+      status: "error",
+      error:
+        turnstileResult.code === "not_configured"
+          ? t("errors.captchaNotConfigured")
+          : t("errors.turnstileFailed"),
+    };
+  }
 
   const parsed = verifyOtpSchema.safeParse({
     email: String(formData.get("email") ?? ""),

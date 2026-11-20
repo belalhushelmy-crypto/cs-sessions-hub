@@ -56,7 +56,7 @@ export const signupSchema = z.object({
 
 export const verifyOtpSchema = z.object({
   email: z.string().email(),
-  token: z.string().length(6).regex(/^\d{6}$/),
+  token: z.string().regex(/^\d{6,8}$/),
 });
 
 export const sessionDateSchema = z.iso.date();

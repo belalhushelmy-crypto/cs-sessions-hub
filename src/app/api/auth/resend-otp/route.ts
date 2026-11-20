@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { toLocale } from "@/lib/locale";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, locale } = body;
+    const { email, locale, turnstile_token } = body;
     const localeStr = toLocale(locale);
+    const t = await getTranslations({ locale: localeStr, namespace: "auth" });
+
+    const turnstileResult = await verifyTurnstile(
+      typeof turnstile_token === "string" ? turnstile_token : null,
+    );
+    if (!turnstileResult.ok) {
+      return NextResponse.json(
+        {
+          error:
+            turnstileResult.code === "not_configured"
+              ? t("errors.captchaNotConfigured")
+              : t("errors.turnstileFailed"),
+        },
+        { status: 400 },
+      );
+    }
 
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });

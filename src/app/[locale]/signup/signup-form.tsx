@@ -1,12 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { signupAction } from "./actions";
 import type { SignupState } from "@/lib/types";
 import { Alert, inputClass, labelClass } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
-import { TurnstileWidget, useTurnstileScript } from "@/components/turnstile-widget";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import Link from "next/link";
 import { turnstileSiteKey } from "@/lib/env-client";
 
@@ -16,15 +16,21 @@ export function SignupForm({ locale }: { locale: string }) {
   const t = useTranslations("auth");
   const [state, formAction] = useActionState(signupAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const siteKey = turnstileSiteKey();
+  const captchaRequired = Boolean(siteKey);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
 
-  useTurnstileScript();
-
-  const handleTurnstileVerify = (token: string | null) => {
+  const handleTurnstileVerify = useCallback((token: string | null) => {
     setTurnstileToken(token);
-    setTurnstileError(null);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (state.status === "error") {
+      setTurnstileToken(null);
+      setTurnstileResetKey((key) => key + 1);
+    }
+  }, [state]);
 
   return (
     <form action={formAction} className="mt-8 space-y-4">
@@ -165,16 +171,8 @@ export function SignupForm({ locale }: { locale: string }) {
         />
       </div>
 
-      {/* Cloudflare Turnstile CAPTCHA */}
-      <TurnstileWidget
-        onVerify={handleTurnstileVerify}
-        disabled={!turnstileSiteKey}
-      />
-      {turnstileError && (
-        <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400" role="alert">
-          {turnstileError}
-        </p>
-      )}
+      {/* Cloudflare Turnstile CAPTCHA: renders nothing when no site key is configured. */}
+      <TurnstileWidget onVerify={handleTurnstileVerify} resetKey={turnstileResetKey} />
 
       {state.status === "error" ? <Alert>{state.error}</Alert> : null}
 
@@ -182,7 +180,7 @@ export function SignupForm({ locale }: { locale: string }) {
         idle={t("signUp")}
         pendingLabel={t("signingUp")}
         className="w-full"
-        disabled={!turnstileToken}
+        disabled={captchaRequired && !turnstileToken}
       />
 
       <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">

@@ -38,7 +38,12 @@ export async function loginAction(
   const turnstileToken = formData.get("turnstile_token") as string | null;
   const turnstileResult = await verifyTurnstile(turnstileToken);
   if (!turnstileResult.ok) {
-    return { error: turnstileResult.error ?? "CAPTCHA verification failed" };
+    return {
+      error:
+        turnstileResult.code === "not_configured"
+          ? t("errors.captchaNotConfigured")
+          : t("errors.turnstileFailed"),
+    };
   }
 
   const supabase = await createClient();

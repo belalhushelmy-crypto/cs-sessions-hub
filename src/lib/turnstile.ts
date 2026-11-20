@@ -1,22 +1,49 @@
 import "server-only";
 
-const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
 const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
-export async function verifyTurnstile(token: string | null): Promise<{ ok: boolean; error?: string }> {
-  // If no secret key is configured, skip verification (dev mode)
-  if (!TURNSTILE_SECRET_KEY) {
-    console.warn("[Turnstile] Secret key not configured, skipping verification (dev mode)");
+export type TurnstileFailureCode =
+  | "not_configured"
+  | "missing_token"
+  | "verification_failed";
+
+export type TurnstileResult =
+  | { ok: true }
+  | { ok: false; code: TurnstileFailureCode };
+
+/**
+ * Verify a Cloudflare Turnstile token.
+ *
+ * The public site key is the feature switch: when it is missing the widget is
+ * not rendered and the client sends no token. In development that means the
+ * check is skipped (with a warning); in production a missing key fails closed.
+ */
+export async function verifyTurnstile(token: string | null): Promise<TurnstileResult> {
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const secretKey = process.env.TURNSTILE_SECRET_KEY;
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (!siteKey || !secretKey) {
+    if (isProduction) {
+      console.error(
+        "[Turnstile] CAPTCHA is not fully configured in production; rejecting the request.",
+      );
+      return { ok: false, code: "not_configured" };
+    }
+
+    console.warn(
+      `[Turnstile] ${!siteKey ? "Site" : "Secret"} key is not configured; skipping CAPTCHA verification in development.`,
+    );
     return { ok: true };
   }
 
   if (!token) {
-    return { ok: false, error: "Missing CAPTCHA token" };
+    return { ok: false, code: "missing_token" };
   }
 
   try {
     const formData = new FormData();
-    formData.append("secret", TURNSTILE_SECRET_KEY);
+    formData.append("secret", secretKey);
     formData.append("response", token);
 
     const response = await fetch(TURNSTILE_VERIFY_URL, {
@@ -24,17 +51,17 @@ export async function verifyTurnstile(token: string | null): Promise<{ ok: boole
       body: formData,
     });
 
-    const data = await response.json();
+    const data: { success?: boolean; "error-codes"?: string[] } = await response.json();
 
     if (data.success) {
       return { ok: true };
     }
 
     console.error("[Turnstile] Verification failed:", data["error-codes"]);
-    return { ok: false, error: "CAPTCHA verification failed" };
+    return { ok: false, code: "verification_failed" };
   } catch (error) {
     console.error("[Turnstile] Verification error:", error);
-    return { ok: false, error: "CAPTCHA verification error" };
+    return { ok: false, code: "verification_failed" };
   }
 }
 
