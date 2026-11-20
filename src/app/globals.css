@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-arabic: var(--font-cairo), "Segoe UI", Tahoma, sans-serif;
+
+  /* SFE Brand Colors */
+  --color-navy-50: #e8eef6;
+  --color-navy-100: #d1dcee;
+  --color-navy-200: #a3b9dc;
+  --color-navy-300: #7596ca;
+  --color-navy-400: #4773b8;
+  --color-navy-500: #2a59a0;
+  --color-navy-600: #1e4580;
+  --color-navy-700: #153560;
+  --color-navy-800: #0c2440;
+  --color-navy-900: #061520;
+  --color-navy-950: #030a10;
+
+  --color-bronze-50: #faf6f0;
+  --color-bronze-100: #f4ebe1;
+  --color-bronze-200: #e9d7c3;
+  --color-bronze-300: #d8b895;
+  --color-bronze-400: #c79967;
+  --color-bronze-500: #b58a5b;
+  --color-bronze-600: #a0754e;
+  --color-bronze-700: #855e3f;
+  --color-bronze-800: #6b4b34;
+  --color-bronze-900: #563d2c;
+  --color-bronze-950: #2e1f16;
+
+  /* Semantic color aliases */
+  --color-primary-50: var(--color-navy-50);
+  --color-primary-100: var(--color-navy-100);
+  --color-primary-200: var(--color-navy-200);
+  --color-primary-300: var(--color-navy-300);
+  --color-primary-400: var(--color-navy-400);
+  --color-primary-500: var(--color-navy-500);
+  --color-primary-600: var(--color-navy-600);
+  --color-primary-700: var(--color-navy-700);
+  --color-primary-800: var(--color-navy-800);
+  --color-primary-900: var(--color-navy-900);
+  --color-primary-950: var(--color-navy-950);
+
+  --color-accent-50: var(--color-bronze-50);
+  --color-accent-100: var(--color-bronze-100);
+  --color-accent-200: var(--color-bronze-200);
+  --color-accent-300: var(--color-bronze-300);
+  --color-accent-400: var(--color-bronze-400);
+  --color-accent-500: var(--color-bronze-500);
+  --color-accent-600: var(--color-bronze-600);
+  --color-accent-700: var(--color-bronze-700);
+  --color-accent-800: var(--color-bronze-800);
+  --color-accent-900: var(--color-bronze-900);
+  --color-accent-950: var(--color-bronze-950);
+
+  --color-background-light: #f8fafc;
+  --color-background-dark: #0a1a2f;
+  --color-surface-light: #ffffff;
+  --color-surface-dark: #11223a;
+  --color-surface-elevated-light: #f1f5f9;
+  --color-surface-elevated-dark: #1a2e4a;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background-light);
+    background-image: radial-gradient(70rem 30rem at 100% -10%, rgb(42 89 160 / 0.08), transparent 60%);
+    color: #0f172a;
+    min-height: 100dvh;
+  }
+
+  html[dir="rtl"] body {
+    font-family: var(--font-arabic);
+  }
+
+  .dark body {
+    background-color: var(--color-background-dark);
+    background-image: radial-gradient(70rem 30rem at 100% -10%, rgb(42 89 160 / 0.12), transparent 60%);
+    color: #f0f4f8;
+  }
+
+  ::selection {
+    background-color: rgb(181 138 91 / 0.3);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .animate-rise {
+    animation: rise 0.35s ease-out both;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Hide the native password reveal button inconsistencies on iOS. */
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}
