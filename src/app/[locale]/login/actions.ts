@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { safeRedirectPath, toLocale } from "@/lib/locale";
 import { loginSchema, normalizeUsername } from "@/lib/validation";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function loginAction(
   _previous: { error: string | null },
@@ -16,7 +17,7 @@ export async function loginAction(
   const t = await getTranslations({ locale, namespace: "auth" });
 
   const parsed = loginSchema.safeParse({
-    username: normalizeUsername(String(formData.get("username") ?? "")),
+    username: String(formData.get("username") ?? "").trim(),
     password: String(formData.get("password") ?? ""),
   });
 
@@ -33,9 +34,35 @@ export async function loginAction(
     return { error: t("tooManyAttempts") };
   }
 
+  // Verify Turnstile token if configured
+  const turnstileToken = formData.get("turnstile_token") as string | null;
+  const turnstileResult = await verifyTurnstile(turnstileToken);
+  if (!turnstileResult.ok) {
+    return { error: turnstileResult.error ?? "CAPTCHA verification failed" };
+  }
+
   const supabase = await createClient();
+
+  const identifier = parsed.data.username.trim();
+  const isEmail = identifier.includes("@");
+
+  // Look up email by username if not an email
+  let email = isEmail ? identifier.toLowerCase() : `${identifier.toLowerCase()}@cshub.local`;
+
+  if (!isEmail) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("username", identifier.toLowerCase())
+      .maybeSingle();
+
+    if (profile?.email) {
+      email = profile.email;
+    }
+  }
+
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: `${parsed.data.username}@cshub.local`,
+    email,
     password: parsed.data.password,
   });
 
@@ -43,9 +70,14 @@ export async function loginAction(
     return { error: t("invalidCredentials") };
   }
 
-  const role = data.user.app_metadata?.role === "admin" ? "admin" : "student";
+  // Check if email is confirmed (except for @cshub.local legacy accounts)
+  if (!data.user.email_confirmed_at && !email.endsWith("@cshub.local")) {
+    return { error: t("emailNotVerified") };
+  }
+
+  const role = data.user.app_metadata?.role === "admin" ? "admin" : data.user.app_metadata?.role === "teacher" ? "teacher" : "student";
   const requested = safeRedirectPath(formData.get("next"), locale);
-  const fallback = role === "admin" ? `/${locale}/admin` : `/${locale}/dashboard`;
+  const fallback = role === "admin" || role === "teacher" ? `/${locale}/admin` : `/${locale}/dashboard`;
 
   redirect(requested ?? fallback);
 }

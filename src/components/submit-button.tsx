@@ -8,17 +8,19 @@ export function SubmitButton({
   idle,
   pendingLabel,
   className,
+  disabled = false,
 }: {
   idle: string;
   pendingLabel: string;
   className?: string;
+  disabled?: boolean;
 }) {
   const { pending } = useFormStatus();
 
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       aria-busy={pending}
       className={cn(buttonPrimary, className)}
     >

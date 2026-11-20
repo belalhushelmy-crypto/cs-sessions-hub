@@ -99,6 +99,20 @@ export type CheckInState =
       attendanceStatus: AttendanceStatus;
     };
 
+/* -------------------------------------------------------------------------- */
+/* Self-signup & email verification                                           */
+/* -------------------------------------------------------------------------- */
+
+export type SignupState =
+  | { status: "idle" }
+  | { status: "error"; error: string }
+  | { status: "success"; message: string };
+
+export type VerifyOtpState =
+  | { status: "idle" }
+  | { status: "error"; error: string }
+  | { status: "success"; message: string };
+
 /** Per-assignment counts returned by admin_assignment_overview(). */
 export type AssignmentOverview = {
   assignment_id: string;

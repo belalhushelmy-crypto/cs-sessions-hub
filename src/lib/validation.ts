@@ -43,6 +43,22 @@ export const profileSchema = z.object({
   opted_out_of_leaderboard: z.boolean(),
 });
 
+export const signupSchema = z.object({
+  full_name: z.string().trim().min(2).max(80),
+  username: z.string().trim().min(3).max(20).regex(/^[a-z0-9_]{3,20}$/),
+  email: z.string().trim().email(),
+  password: z.string().min(8).max(72),
+  confirm_password: z.string().min(8).max(72),
+}).refine((data) => data.password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
+});
+
+export const verifyOtpSchema = z.object({
+  email: z.string().email(),
+  token: z.string().length(6).regex(/^\d{6}$/),
+});
+
 export const sessionDateSchema = z.iso.date();
 
 export const sessionSchema = z.object({

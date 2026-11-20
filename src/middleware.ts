@@ -36,6 +36,28 @@ async function getUserRole(supabaseUrl: string, supabaseAnonKey: string, cookies
   return (profile?.role as "student" | "teacher" | "admin") ?? "student";
 }
 
+async function isEmailVerified(supabaseUrl: string, supabaseAnonKey: string, cookies: NextRequest["cookies"]): Promise<boolean> {
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookies.getAll();
+      },
+      setAll() {
+        // no-op in middleware read
+      },
+    },
+  });
+
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
+  if (!user) return false;
+
+  // @cshub.local accounts are legacy and don't require email verification
+  if (user.email?.endsWith("@cshub.local")) return true;
+
+  return !!user.email_confirmed_at;
+}
+
 export async function middleware(request: NextRequest) {
   // Handles locale detection, the NEXT_LOCALE cookie and /en|/ar prefixing.
   const response = intlMiddleware(request);
@@ -60,19 +82,21 @@ export async function middleware(request: NextRequest) {
   const locale = maybeLocale as AppLocale;
   const path = `/${segments.slice(1).join("/")}`;
   const isLogin = path === "/login";
+  const isSignup = path === "/signup";
+  const isVerifyEmail = path === "/verify-email";
 
   // Determine role from profiles table
   const role = await getUserRole(supabaseUrl, supabaseAnonKey, request.cookies);
 
   // Redirect unauthenticated users to login
-  if (!role && !isLogin) {
+  if (!role && !isLogin && !isSignup && !isVerifyEmail) {
     const url = new URL(`/${locale}/login`, request.url);
     if (path !== "/") url.searchParams.set("next", `${pathname}${search}`);
     return copyCookies(NextResponse.redirect(url), response);
   }
 
-  // Redirect authenticated users away from login
-  if (role && isLogin) {
+  // Redirect authenticated users away from login/signup/verify
+  if (role && (isLogin || isSignup || isVerifyEmail)) {
     const target = role === "admin" || role === "teacher" ? `/${locale}/admin` : `/${locale}/dashboard`;
     return copyCookies(NextResponse.redirect(new URL(target, request.url)), response);
   }
@@ -84,6 +108,16 @@ export async function middleware(request: NextRequest) {
       NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url)),
       response,
     );
+  }
+
+  // Require email verification for student pages (except @cshub.local legacy accounts)
+  if (role === "student" && !isLogin && !isSignup && !isVerifyEmail) {
+    const verified = await isEmailVerified(supabaseUrl, supabaseAnonKey, request.cookies);
+    if (!verified) {
+      const url = new URL(`/${locale}/verify-email`, request.url);
+      url.searchParams.set("next", `${pathname}${search}`);
+      return copyCookies(NextResponse.redirect(url), response);
+    }
   }
 
   return response;

@@ -4,6 +4,7 @@ import { z } from "zod";
 const publicSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
 });
 
 const serviceSchema = z.object({
@@ -52,4 +53,9 @@ export function serviceEnv(): ServiceEnv {
     serviceCache = parsed.data;
   }
   return serviceCache;
+}
+
+export function turnstileSiteKey(): string | undefined {
+  const env = publicEnv();
+  return env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 }
