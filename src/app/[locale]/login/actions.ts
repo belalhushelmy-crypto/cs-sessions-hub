@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/rate-limit";
 import { safeRedirectPath, toLocale } from "@/lib/locale";
 import { loginSchema, normalizeUsername } from "@/lib/validation";
@@ -55,7 +56,10 @@ export async function loginAction(
   let email = isEmail ? identifier.toLowerCase() : `${identifier.toLowerCase()}@cshub.local`;
 
   if (!isEmail) {
-    const { data: profile } = await supabase
+    // profiles has no anon SELECT policy, so the signed-out client cannot see
+    // the email. Use the service role for this lookup only (never for auth).
+    const admin = createAdminClient();
+    const { data: profile } = await admin
       .from("profiles")
       .select("email")
       .eq("username", identifier.toLowerCase())
