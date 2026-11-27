@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * CS Sessions Hub — demo seed (Phases 1–5)
+ * Data Science SFE — demo seed (Phases 1–5)
  *
  * Usage:
  *   cp .env.example .env.local     # fill in URL + service role key
@@ -127,7 +127,7 @@ async function upsertSession({ title, date, code, codeMinutes }) {
 }
 
 async function main() {
-  console.log("\nSeeding CS Sessions Hub…\n");
+  console.log("\nSeeding Data Science SFE…\n");
 
   console.log("Teacher");
   const teacher = await ensureUser({
@@ -149,14 +149,14 @@ async function main() {
   const sessionSpecs = [
     { title: "Lab 02 · Practice: functions", date: isoDate(-35), statuses: [1, 0, 1, 1, 1, 1] },
     { title: "Lab 01 · Practice: loops", date: isoDate(-28), statuses: [1, 1, 2, 1, 0, 1] },
-    { title: "Session 01 · Hello, C++", date: isoDate(-21), statuses: [1, 1, 1, 1, 1, 1] },
-    { title: "Session 02 · Variables & types", date: isoDate(-14), statuses: [1, 2, 0, 1, 1, 1] },
+    { title: "Session 01 · Hello, Python", date: isoDate(-21), statuses: [1, 1, 1, 1, 1, 1] },
+    { title: "Session 02 · Variables & data types", date: isoDate(-14), statuses: [1, 2, 0, 1, 1, 1] },
     { title: "Session 03 · Conditions & loops", date: isoDate(-7), statuses: [1, 1, 1, 2, 0, 1] },
     {
-      title: "Session 04 · Functions & scope",
+      title: "Session 04 · Functions & pandas",
       date: isoDate(0),
       statuses: [1, 1, 1, 1, 1, 1],
-      code: "CPP101",
+      code: "DS101",
       codeMinutes: 45,
     },
   ];
@@ -192,22 +192,22 @@ async function main() {
   console.log("\nAssignments");
   const assignments = [
     {
-      title: "Assignment 1 · Sum of two numbers",
+      title: "Assignment 1 · Average of a list",
       description:
-        "Read two integers from standard input and print their sum on a single line. Follow the exact output format.",
+        "Read numbers from standard input, one per line, and print their average with exactly two decimal places.",
       rubric:
-        "40% compiles cleanly and uses iostream; 30% reads both integers correctly; 20% correct sum; 10% readable names and indentation.",
-      expected_output: "Input: 3 5\nOutput: 8",
+        "40% reads every number correctly; 30% correct average; 20% exact output format; 10% readable names and no unused imports.",
+      expected_output: "Input: 4\n6\n8\nOutput: 6.00",
       max_score: 100,
       deadline: new Date(Date.now() + 7 * 86_400_000).toISOString(),
     },
     {
-      title: "Assignment 2 · Even or odd",
+      title: "Assignment 2 · Count missing values",
       description:
-        "Read one integer and print \"Even\" if it is divisible by 2, otherwise print \"Odd\". Use an if/else statement.",
+        "Given a list of values where some entries are None, count and print how many are missing. Use a loop or a comprehension.",
       rubric:
-        "40% correct logic; 25% handles negative numbers; 20% exact output; 15% clean formatting.",
-      expected_output: "Input: 4\nOutput: Even",
+        "40% correct logic; 25% handles an empty input; 20% exact output; 15% clean formatting.",
+      expected_output: "Input: 1,None,3,None\nOutput: 2",
       max_score: 100,
       deadline: new Date(Date.now() + 14 * 86_400_000).toISOString(),
     },
@@ -246,59 +246,43 @@ async function main() {
         student: students[0],
         score: 92,
         feedback:
-          "Correct sum and clean structure. Prefer descriptive variable names instead of a and b.",
+          "Correct average and clean structure. Handle an empty input to avoid dividing by zero.",
         feedbackAr:
-          "المجموع صحيح والبنية واضحة. يُفضّل استخدام أسماء متغيرات وصفية بدلًا من a و b.",
-        issues: ["Variable names could be more descriptive."],
+          "المتوسط صحيح والبنية واضحة. تعامل مع المدخل الفارغ لتجنّب القسمة على صفر.",
+        issues: ["No guard for an empty input."],
         code: [
-          "#include <iostream>",
+          "import sys",
           "",
-          "int main() {",
-          "    int first = 0;",
-          "    int second = 0;",
-          "    if (!(std::cin >> first >> second)) return 1;",
-          "    std::cout << first + second << '\\n';",
-          "    return 0;",
-          "}",
+          "values = [float(line) for line in sys.stdin if line.strip()]",
+          'print(f"{sum(values) / len(values):.2f}")',
         ].join("\n"),
       },
       {
         student: students[1],
         score: 74,
         feedback:
-          "The sum is correct, but input is not checked and the program prints extra text. Match the expected output exactly.",
+          "The average is correct, but the program prints extra text and crashes on empty input. Match the expected output exactly.",
         feedbackAr:
-          "المجموع صحيح، لكن المدخلات غير مُتحقَّق منها والبرنامج يطبع نصًا إضافيًا. التزم بالناتج المتوقع تمامًا.",
-        issues: ["Extra text in the output.", "No check that reading succeeded."],
+          "المتوسط صحيح، لكن البرنامج يطبع نصًا إضافيًا ويتعطّل عند المدخل الفارغ. التزم بالناتج المتوقع تمامًا.",
+        issues: ["Extra text in the output.", "Divides by zero on empty input."],
         code: [
-          "#include <iostream>",
-          "using namespace std;",
+          "import sys",
           "",
-          "int main() {",
-          "    int a, b;",
-          "    cin >> a >> b;",
-          '    cout << "Sum is: " << a + b << endl;',
-          "    return 0;",
-          "}",
+          "numbers = [float(line) for line in sys.stdin if line.strip()]",
+          'print("Average is:", sum(numbers) / len(numbers))',
         ].join("\n"),
       },
       {
         student: students[2],
         score: 55,
         feedback:
-          "The program reads a single number and prints it, not the sum of two numbers. Re-read the task.",
+          "The program reads a single number and prints it instead of the average of all numbers. Re-read the task.",
         feedbackAr:
-          "البرنامج يقرأ رقمًا واحدًا ويطبعه، وليس مجموع رقمين. أعد قراءة المطلوب.",
-        issues: ["Only one value is read.", "No addition is performed."],
+          "البرنامج يقرأ رقمًا واحدًا ويطبعه بدلًا من متوسط كل الأرقام. أعد قراءة المطلوب.",
+        issues: ["Only one value is read.", "No average is computed."],
         code: [
-          "#include <iostream>",
-          "",
-          "int main() {",
-          "    int value = 0;",
-          "    std::cin >> value;",
-          "    std::cout << value << '\\n';",
-          "    return 0;",
-          "}",
+          "value = float(input())",
+          "print(value)",
         ].join("\n"),
       },
     ];
@@ -316,11 +300,11 @@ async function main() {
         continue;
       }
 
-      const path = `${sample.student.id}/${firstAssignment.id}/seed-${sample.student.username}.cpp`;
+      const path = `${sample.student.id}/${firstAssignment.id}/seed-${sample.student.username}.py`;
       const { error: uploadError } = await admin.storage
         .from("submissions")
         .upload(path, sample.code, {
-          contentType: "text/x-c++src",
+          contentType: "text/x-python",
           upsert: true,
         });
       if (uploadError) throw uploadError;
@@ -350,15 +334,15 @@ async function main() {
   console.log("\nAnnouncements");
   const announcements = [
     {
-      title: "Welcome to CS Sessions Hub",
+      title: "Welcome to Data Science SFE",
       body:
-        "This is where attendance, assignments and your progress live. Your username was given to you by your teacher — keep your password private.",
+        "This is where attendance, assignments and your progress live. Create your account from the signup page — keep your password private.",
       pinned: true,
     },
     {
       title: "Bring your laptops on Thursday",
       body:
-        "We will write our first complete C++ program together. Install a compiler (g++ or an online IDE) before the session if you can.",
+        "We will write our first complete Python program together. Install Python 3 and Jupyter (or use Google Colab) before the session if you can.",
       pinned: false,
     },
   ];
@@ -391,7 +375,7 @@ async function main() {
   const { error: codeError } = await admin
     .from("sessions")
     .update({
-      attendance_code: "CPP101",
+      attendance_code: "DS101",
       code_expires_at: new Date(Date.now() + 45 * 60_000).toISOString(),
     })
     .eq("id", sessionIds[sessionIds.length - 1]);
@@ -405,7 +389,7 @@ async function main() {
   console.log("\nDemo student login (all six students):");
   console.log(`  username: ${STUDENTS.map(([u]) => u).join(", ")}`);
   console.log(`  password: ${studentPassword}`);
-  console.log("\nActive attendance code for today's session: CPP101");
+  console.log("\nActive attendance code for today's session: DS101");
   console.log("──────────────────────────────────────────────\n");
   if (ADMIN.password === "ChangeMe123!" || studentPassword === "Student123!") {
     console.log("⚠  Change the demo passwords before using this with a real class.\n");

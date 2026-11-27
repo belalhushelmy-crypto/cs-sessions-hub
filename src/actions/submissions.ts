@@ -106,7 +106,7 @@ export async function submitAssignmentAction(
     if (!(file instanceof File) || file.size === 0) {
       return { status: "error", error: t("errors.fileMissing") };
     }
-    if (!/\.cpp$/i.test(file.name)) {
+    if (!/\.py$/i.test(file.name)) {
       return { status: "error", error: t("errors.fileType") };
     }
     if (file.size > MAX_SUBMISSION_BYTES) {
@@ -132,12 +132,12 @@ export async function submitAssignmentAction(
     // Upload file to storage
     filePath = `${profile.id}/${assignment.id}/${Date.now()}-${crypto
       .randomUUID()
-      .slice(0, 8)}.cpp`;
+      .slice(0, 8)}.py`;
 
     const { error: uploadError } = await supabase.storage
       .from("submissions")
       .upload(filePath, bytes, {
-        contentType: "text/x-c++src",
+        contentType: "text/x-python",
         upsert: false,
       });
 

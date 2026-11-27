@@ -1,8 +1,8 @@
 /**
- * Lightweight, dependency-free source similarity for C++ submissions.
+ * Lightweight, dependency-free source similarity for Python submissions.
  *
- * Normalization removes comments, string/char literals and preprocessor
- * directives, then tokenizes. Tokens are grouped into fixed-size shingles
+ * Normalization removes comments, docstrings and string literals, then
+ * tokenizes. Tokens are grouped into fixed-size shingles
  * (5-grams) and hashed; the similarity is the Jaccard index of the shingle
  * sets. This catches copy/paste with renamed variables only up to a point,
  * which is the intended "review this pair" signal — not a verdict.
@@ -18,11 +18,11 @@ export type CodeFingerprint = {
 
 function stripNoise(source: string): string {
   return source
-    .replace(/\/\*[\s\S]*?\*\//g, " ")
-    .replace(/\/\/[^\n\r]*/g, " ")
+    .replace(/"""[\s\S]*?"""/g, ' "doc" ')
+    .replace(/'''[\s\S]*?'''/g, " 'doc' ")
     .replace(/"(?:\\.|[^"\\])*"/g, ' "str" ')
-    .replace(/'(?:\\.|[^'\\])*'/g, " 'chr' ")
-    .replace(/^\s*#.*$/gm, " ");
+    .replace(/'(?:\\.|[^'\\])*'/g, " 'str' ")
+    .replace(/#[^\n\r]*/g, " ");
 }
 
 export function tokenizeCode(source: string): string[] {

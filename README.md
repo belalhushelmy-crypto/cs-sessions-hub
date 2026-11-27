@@ -1,6 +1,6 @@
-# CS Sessions Hub
+# Data Science SFE
 
-A bilingual (English / Arabic, full RTL) class hub for C++ fundamentals sessions:
+A bilingual (English / Arabic, full RTL) class hub for Data Science sessions:
 attendance, assignments, AI feedback, points, badges and a privacy-safe leaderboard.
 
 Built with **Next.js (App Router) + TypeScript + Tailwind CSS + Supabase**.
@@ -24,7 +24,7 @@ Built with **Next.js (App Router) + TypeScript + Tailwind CSS + Supabase**.
   leaderboard view that exposes only `rank`, `display_name`, `points`, `weekly_points`, `weekly_rank`.
 - Username + password login (`<username>@cshub.local` internally).
 - Teacher account management:
-  - create a student (with generated student code like `CS-0001`)
+  - create a student (with generated student code like `DS-0001`)
   - bulk CSV import (up to 200 rows, per-row results, generated passwords)
   - reset a student password
 - Student dashboard (attendance rate, average score, badges, deadlines, announcements),
@@ -38,7 +38,7 @@ Built with **Next.js (App Router) + TypeScript + Tailwind CSS + Supabase**.
   - student attendance history and teacher class metrics (attendance %, average score, last attended)
 - **Assignments & AI grading (Phase 3):**
   - teacher assignment CRUD with task, rubric, expected output, max score, deadline and resubmit policy
-  - student assignment list + detail page; upload `.cpp` files (100 KB, UTF-8) with resubmit rules
+  - student assignment list + detail page; upload `.py` files (100 KB, UTF-8) with resubmit rules
   - automatic grading on upload through Gemini REST (`responseSchema`, bilingual feedback, issue list)
   - retries with backoff on 429/5xx/timeouts, strict zod re-validation, and a persisted error reason
   - pending queue: `submissions` rows double as the queue; teacher can grade up to 3 queued attempts per click
@@ -63,7 +63,7 @@ Built with **Next.js (App Router) + TypeScript + Tailwind CSS + Supabase**.
   - **CSV exports** for the student roster, one session's attendance and one assignment's
     grades — generated in admin-checked server actions, downloaded as a Blob, with a
     UTF-8 BOM and CRLF so Excel opens Arabic names correctly
-  - **Similarity check** per assignment: normalizes C++ source (comments, strings and
+  - **Similarity check** per assignment: normalizes Python source (comments, strings and
     preprocessor lines dropped), compares 5-token shingles with Jaccard, stores pairs at
     or above a configurable threshold (30–100, default 70), and lets the teacher mark a
     pair reviewed or flag both attempts
@@ -127,7 +127,7 @@ The seed is idempotent. Default credentials (change them!):
 | Teacher | `admin`                      | `ChangeMe123!`  |
 | Student | `sara`, `omar`, `layla`, …   | `Student123!`   |
 
-Today’s demo invitation code is `CPP101` (valid for 45 minutes after seeding).
+Today’s demo invitation code is `DS101` (valid for 45 minutes after seeding).
 The first seeded assignment also gets three graded example submissions (stored in
 the private `submissions` bucket) so the review screens have data immediately.
 Override passwords with `SEED_ADMIN_PASSWORD` / `SEED_STUDENT_PASSWORD`.
@@ -187,7 +187,7 @@ npm run seed        # demo data (requires .env.local)
 
 1. Sign in as the teacher and open **Assignments**, then create one with a task,
    rubric and optional deadline (deadline input is UTC; the label says so).
-2. Sign in as a student, open the assignment and upload a small `.cpp` file
+2. Sign in as a student, open the assignment and upload a small `.py` file
    (`#include <iostream>` + `int main()` is enough to exercise the flow).
 3. With `GEMINI_API_KEY` set, the attempt is graded immediately: score, English
    and Arabic feedback and issues appear under **Your attempts**. Without a key,
@@ -305,7 +305,7 @@ write class data.
 | `badges` / `student_badges`| badges read; own awards read                   | full access                     |
 | `points_config`            | read                                           | update                          |
 | `leaderboard` (view)       | `rank`, `display_name`, `points`, `weekly_points`, `weekly_rank` only; opted-out students excluded | same |
-| `storage.objects`          | upload/read only under `<auth.uid()>/…` and `.cpp` | read/delete all              |
+| `storage.objects`          | upload/read only under `<auth.uid()>/…` and `.py` | read/delete all              |
 
 Additional notes:
 
@@ -453,7 +453,7 @@ dynamic rendering everywhere (all pages depend on auth cookies).
 3. **First login**: create the teacher account (seed or manually through Supabase
    Auth), sign in, and change the demo password immediately from **Profile**.
 4. **Smoke test in production**: log in as teacher and student; create a session,
-   check in with the code, upload a `.cpp`, grade it, run a similarity check, export
+   check in with the code, upload a `.py`, grade it, run a similarity check, export
    one CSV, open `/en` and `/ar` once each.
 5. **Backups**: enable Supabase daily backups (paid tiers) or schedule `pg_dump`;
    the submissions bucket is the only file store — include it in any backup plan.
@@ -464,7 +464,7 @@ dynamic rendering everywhere (all pages depend on auth cookies).
 
 - **Phase 1:** foundation, SQL + RLS, auth, admin students, profiles, dashboards, i18n.
 - **Phase 2:** sessions, rotating attendance codes + QR, self check-in UI, manual attendance, students table metrics.
-- **Phase 3:** assignments, `.cpp` uploads, Gemini grading (strict JSON, retries, queue),
+- **Phase 3:** assignments, `.py` uploads, Gemini grading (strict JSON, retries, queue),
   admin review/override, per-student rate limits.
 - **Phase 5:** similarity checking, announcements CRUD, CSV exports, analytics, i18n polish.
 - **Phase 6 (this):** accessibility pass, seed enrichment for the analytics views, launch checklist.

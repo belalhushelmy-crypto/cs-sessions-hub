@@ -134,7 +134,7 @@ export function SubmissionForm({
                 name="file"
                 type="file"
                 required
-                accept=".cpp,text/x-c++src"
+                accept=".py,text/x-python"
                 onChange={(event) => setFileName(event.target.files?.[0]?.name ?? null)}
                 className={`${inputClass} cursor-pointer file:me-3 file:rounded-lg file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary-700 dark:file:bg-primary-500/10 dark:file:text-primary-300`}
               />

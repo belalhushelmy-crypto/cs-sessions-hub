@@ -59,7 +59,7 @@ export default async function SignupPage({
         </div>
 
         <p dir="ltr" className="relative z-10 text-end text-xs text-slate-500">
-          CS Fundamentals · C++
+          Data Science · Python
         </p>
       </aside>
 

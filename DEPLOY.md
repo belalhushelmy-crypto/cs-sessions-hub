@@ -97,7 +97,7 @@ Confirm signup (EN/AR):
 
 ```html
 <div style="font-family:system-ui,sans-serif;max-width:520px;margin:auto;padding:24px">
-  <h2 style="color:#0B3C6F;margin:0 0 8px">CS Sessions Hub</h2>
+  <h2 style="color:#0B3C6F;margin:0 0 8px">Data Science SFE</h2>
   <p style="margin:0 0 16px">كود تفعيل حسابك / Your verification code:</p>
   <p style="font-size:34px;letter-spacing:10px;font-weight:700;color:#0B3C6F;margin:0 0 16px">
     {{ .Token }}
@@ -108,7 +108,7 @@ Confirm signup (EN/AR):
 ```
 
 Leave **Reset password** on `{{ .ConfirmationURL }}` (it is a link flow).
-Set the sender name to `CS Sessions Hub` and reply-to to a mailbox you read.
+Set the sender name to `Data Science SFE` and reply-to to a mailbox you read.
 
 ## 4. Brevo as the SMTP sender
 
@@ -135,7 +135,7 @@ Set the sender name to `CS Sessions Hub` and reply-to to a mailbox you read.
    | Username | Brevo SMTP login |
    | Password | Brevo SMTP key |
    | Sender email | an address on the authenticated domain |
-   | Sender name | `CS Sessions Hub` |
+   | Sender name | `Data Science SFE` |
 
 5. Supabase caps auth emails at ~30/hour by default; raise it under
    **Authentication → Rate Limits** only if you expect a big signup burst.
@@ -196,7 +196,7 @@ Students create their own accounts at `/en/signup` (or `/ar/signup`).
 1. `/en/signup` → real email → 8-digit code arrives from Brevo → verify → login.
 2. Same in `/ar` (RTL).
 3. Admin: create a session, open attendance, add a student ID.
-4. Student: upload a `.cpp`, admin grades it (or leave `GEMINI_API_KEY` empty
+4. Student: upload a `.py`, admin grades it (or leave `GEMINI_API_KEY` empty
    and grade manually).
 5. `POST` a wrong code 5× — confirm rate limits and Turnstile behave.
 
