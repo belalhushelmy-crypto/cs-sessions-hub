@@ -177,9 +177,21 @@ export async function gradeCode(
     Math.max(1, options.maxAttempts ?? MAX_ATTEMPTS),
   );
 
+  const parts: Array<{ text?: string; inline_data?: { mime_type: string; data: string } }> = [
+    { text: buildUserPrompt(input) },
+  ];
+  for (const attachment of input.attachments ?? []) {
+    parts.push({
+      text: `Attached ${attachment.label ?? "submitted"} file: ${attachment.name}`,
+    });
+    parts.push({
+      inline_data: { mime_type: attachment.mimeType, data: attachment.data },
+    });
+  }
+
   const body = JSON.stringify({
     systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
-    contents: [{ role: "user", parts: [{ text: buildUserPrompt(input) }] }],
+    contents: [{ role: "user", parts }],
     generationConfig: {
       temperature: 0.2,
       maxOutputTokens: 2048,

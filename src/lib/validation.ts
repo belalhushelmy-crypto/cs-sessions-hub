@@ -90,9 +90,47 @@ export const idSchema = z.string().uuid();
 /* Phase 3: assignments, uploads and grading                                  */
 /* -------------------------------------------------------------------------- */
 
-/** Matches the storage bucket limit (100 KB). */
-export const MAX_SUBMISSION_BYTES = 100 * 1024;
+/** Matches the storage bucket limit (10 MB) for uploaded files. */
+export const MAX_SUBMISSION_BYTES = 10 * 1024 * 1024;
 export const MAX_SUBMISSION_CHARS = 100_000;
+
+export const SUBMISSION_FILE_EXTENSIONS = [
+  ".py", ".ipynb", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf",
+] as const;
+
+export const TASK_FILE_EXTENSIONS = [
+  ".ipynb", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf",
+] as const;
+
+export function fileExtension(name: string): string {
+  const dot = name.lastIndexOf(".");
+  return dot < 0 ? "" : name.slice(dot).toLowerCase();
+}
+
+export function isAllowedFile(
+  name: string,
+  extensions: readonly string[],
+): boolean {
+  return extensions.includes(fileExtension(name));
+}
+
+export function mimeForExtension(extension: string): string {
+  const types: Record<string, string> = {
+    ".py": "text/x-python",
+    ".ipynb": "application/x-ipynb+json",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+    ".pdf": "application/pdf",
+  };
+  return types[extension] ?? "application/octet-stream";
+}
+
+export function isTextFile(extension: string): boolean {
+  return extension === ".py" || extension === ".ipynb";
+}
 
 export const textSubmissionSchema = z.object({
   code: z.string().trim().min(1).max(MAX_SUBMISSION_CHARS),
@@ -100,9 +138,9 @@ export const textSubmissionSchema = z.object({
 
 export const assignmentSchema = z.object({
   title: z.string().trim().min(3).max(160),
-  description: z.string().trim().max(4000),
+  description: z.string().trim().max(4000).optional().default(""),
   rubric: z.string().trim().max(4000),
-  expected_output: z.string().trim().max(2000),
+  expected_output: z.string().trim().max(2000).optional().default(""),
   max_score: z.coerce.number().min(1).max(1000),
   allow_resubmit: z.boolean(),
   allowed_submission_types: z.enum(["file", "text", "both"]).default("both"),

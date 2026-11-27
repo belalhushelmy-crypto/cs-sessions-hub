@@ -24,6 +24,7 @@ export type AssignmentFormValues = {
   description?: string;
   rubric?: string;
   expected_output?: string | null;
+  task_file_name?: string | null;
   max_score?: number | string;
   deadline?: string | null;
   allow_resubmit?: boolean;
@@ -97,6 +98,27 @@ export function AssignmentForm({
             placeholder={t("descriptionPlaceholder")}
             className={inputClass}
           />
+        </div>
+
+        <div>
+          <label htmlFor={`${idPrefix}-task-file`} className={labelClass}>
+            {t("taskFileLabel")}
+          </label>
+          <input
+            id={`${idPrefix}-task-file`}
+            name="task_file"
+            type="file"
+            accept=".ipynb,.png,.jpg,.jpeg,.webp,.gif,.pdf,image/*,application/pdf"
+            className={`${inputClass} cursor-pointer file:me-3 file:rounded-lg file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary-700 dark:file:bg-primary-500/10 dark:file:text-primary-300`}
+          />
+          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+            {t("taskFileHint")}
+          </p>
+          {assignment?.task_file_name ? (
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {t("currentTaskFile")}: <span className="font-mono">{assignment.task_file_name}</span>
+            </p>
+          ) : null}
         </div>
 
         <div>

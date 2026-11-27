@@ -14,6 +14,14 @@ export const gradingResponseSchema = z.object({
 
 export type GradingResponse = z.infer<typeof gradingResponseSchema>;
 
+/** Binary files (images, PDFs) sent to Gemini as inline data. */
+export type GradingAttachment = {
+  name: string;
+  mimeType: string;
+  data: string;
+  label?: string;
+};
+
 export type GradingInput = {
   title: string;
   description: string;
@@ -21,4 +29,6 @@ export type GradingInput = {
   expectedOutput: string | null;
   maxScore: number;
   code: string;
+  taskFileText?: string | null;
+  attachments?: GradingAttachment[];
 };

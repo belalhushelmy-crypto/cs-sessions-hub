@@ -6,9 +6,14 @@ import { getCurrentProfile } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
 import {
+  fileExtension,
   idSchema,
+  isAllowedFile,
+  isTextFile,
   MAX_SUBMISSION_BYTES,
   MAX_SUBMISSION_CHARS,
+  mimeForExtension,
+  SUBMISSION_FILE_EXTENSIONS,
   textSubmissionSchema,
 } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
@@ -106,9 +111,10 @@ export async function submitAssignmentAction(
     if (!(file instanceof File) || file.size === 0) {
       return { status: "error", error: t("errors.fileMissing") };
     }
-    if (!/\.py$/i.test(file.name)) {
+    if (!isAllowedFile(file.name, SUBMISSION_FILE_EXTENSIONS)) {
       return { status: "error", error: t("errors.fileType") };
     }
+    const extension = fileExtension(file.name);
     if (file.size > MAX_SUBMISSION_BYTES) {
       return { status: "error", error: t("errors.fileSize") };
     }
@@ -118,26 +124,33 @@ export async function submitAssignmentAction(
       return { status: "error", error: t("errors.fileSize") };
     }
 
-    codeText = new TextDecoder("utf-8").decode(bytes);
-    if (bytes.includes(0) || codeText.includes("\uFFFD")) {
-      return { status: "error", error: t("errors.fileNotText") };
-    }
-    if (!codeText.trim()) {
-      return { status: "error", error: t("errors.fileEmpty") };
-    }
-    if (codeText.length > MAX_SUBMISSION_CHARS) {
-      return { status: "error", error: t("errors.fileSize") };
+    if (isTextFile(extension)) {
+      // Python source and notebooks are text files; keep their full contents.
+      codeText = new TextDecoder("utf-8").decode(bytes);
+      if (bytes.includes(0) || codeText.includes("\uFFFD")) {
+        return { status: "error", error: t("errors.fileNotText") };
+      }
+      if (!codeText.trim()) {
+        return { status: "error", error: t("errors.fileEmpty") };
+      }
+      if (extension === ".py" && codeText.length > MAX_SUBMISSION_CHARS) {
+        return { status: "error", error: t("errors.fileSize") };
+      }
+    } else {
+      // Images and PDFs are binary: the file itself is sent to the grader.
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
+      codeText = `[Attached ${extension.slice(1).toUpperCase()} file: ${safeName}]`;
     }
 
-    // Upload file to storage
+    // Upload file to storage, preserving its real extension.
     filePath = `${profile.id}/${assignment.id}/${Date.now()}-${crypto
       .randomUUID()
-      .slice(0, 8)}.py`;
+      .slice(0, 8)}${extension}`;
 
     const { error: uploadError } = await supabase.storage
       .from("submissions")
       .upload(filePath, bytes, {
-        contentType: "text/x-python",
+        contentType: mimeForExtension(extension),
         upsert: false,
       });
 

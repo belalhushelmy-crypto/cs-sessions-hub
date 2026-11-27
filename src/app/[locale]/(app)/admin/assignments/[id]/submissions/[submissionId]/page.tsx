@@ -159,13 +159,25 @@ export default async function SubmissionReviewPage({
               title={t("codeTitle")}
               action={
                 signedUrl ? (
-                  <a
-                    href={signedUrl}
-                    download
-                    className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
-                  >
-                    {t("download")}
-                  </a>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <a
+                      href={signedUrl}
+                      download
+                      className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+                    >
+                      {t("download")}
+                    </a>
+                    {/\.ipynb$/i.test(data.file_path) ? (
+                      <a
+                        href={`https://colab.research.google.com/?url=${encodeURIComponent(signedUrl)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm font-medium text-accent-600 hover:text-accent-500 dark:text-accent-400"
+                      >
+                        {t("openInColab")}
+                      </a>
+                    ) : null}
+                  </div>
                 ) : null
               }
             />

@@ -26,6 +26,8 @@ type AssignmentRow = {
   description: string;
   rubric: string;
   expected_output: string | null;
+  task_file_path: string | null;
+  task_file_name: string | null;
   deadline: string | null;
   max_score: number | string;
   allow_resubmit: boolean;
@@ -72,7 +74,7 @@ export default async function StudentAssignmentPage({
   const { data: assignment, error: assignmentError } = await supabase
     .from("assignments")
     .select(
-      "id, title, description, rubric, expected_output, deadline, max_score, allow_resubmit, allowed_submission_types",
+      "id, title, description, rubric, expected_output, task_file_path, task_file_name, deadline, max_score, allow_resubmit, allowed_submission_types",
     )
     .eq("id", parsedId.data)
     .maybeSingle()
@@ -83,6 +85,12 @@ export default async function StudentAssignmentPage({
     notFound();
   }
   if (!assignment) notFound();
+
+  const taskFileUrl = assignment.task_file_path
+    ? supabase.storage
+        .from("assignment-tasks")
+        .getPublicUrl(assignment.task_file_path).data.publicUrl
+    : null;
 
   const { data: attemptsData, error: attemptsError } = await supabase
     .from("submissions")
@@ -194,6 +202,17 @@ export default async function StudentAssignmentPage({
             <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">
               {assignment.description || t("noDescription")}
             </p>
+            {taskFileUrl ? (
+              <a
+                href={taskFileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+              >
+                {t("taskFile")}
+                {assignment.task_file_name ? ` · ${assignment.task_file_name}` : null}
+              </a>
+            ) : null}
           </div>
 
           {assignment.rubric ? (

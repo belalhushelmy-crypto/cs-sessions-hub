@@ -8,9 +8,14 @@ import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
 import {
   assignmentSchema,
+  fileExtension,
   idSchema,
+  isAllowedFile,
+  MAX_SUBMISSION_BYTES,
+  mimeForExtension,
   parseDeadlineInput,
   submissionReviewSchema,
+  TASK_FILE_EXTENSIONS,
 } from "@/lib/validation";
 import type {
   AssignmentFormState,
@@ -31,6 +36,39 @@ function parseAssignmentForm(formData: FormData) {
     max_score: formData.get("max_score") ?? 100,
     allow_resubmit: formData.get("allow_resubmit") === "on",
   });
+}
+
+type TaskFile = { path: string; name: string };
+
+/** Uploads an optional task file (.ipynb, image or PDF) to the public bucket. */
+async function uploadTaskFile(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  file: FormDataEntryValue | null,
+  ownerId: string,
+  assignmentId: string,
+): Promise<TaskFile | null> {
+  if (!(file instanceof File) || file.size === 0) return null;
+  if (!isAllowedFile(file.name, TASK_FILE_EXTENSIONS)) {
+    throw new Error("invalid_task_file");
+  }
+  if (file.size > MAX_SUBMISSION_BYTES) {
+    throw new Error("task_file_too_large");
+  }
+
+  const extension = fileExtension(file.name);
+  const name = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
+  const path = `${ownerId}/${assignmentId}/${Date.now()}-${crypto
+    .randomUUID()
+    .slice(0, 8)}-${name}`;
+
+  const { error } = await supabase.storage
+    .from("assignment-tasks")
+    .upload(path, new Uint8Array(await file.arrayBuffer()), {
+      contentType: mimeForExtension(extension),
+      upsert: false,
+    });
+  if (error) throw error;
+  return { path, name };
 }
 
 export async function createAssignmentAction(
@@ -66,13 +104,34 @@ export async function createAssignmentAction(
 
   const profile = await getCurrentProfile();
   const supabase = await createClient();
+  const assignmentId = crypto.randomUUID();
+
+  let taskFile: TaskFile | null = null;
+  try {
+    taskFile = await uploadTaskFile(
+      supabase,
+      formData.get("task_file"),
+      profile?.id ?? "system",
+      assignmentId,
+    );
+  } catch (uploadError) {
+    console.error("task file upload failed:", uploadError);
+    return {
+      status: "error",
+      error: t("errors.taskFileFailed"),
+    };
+  }
+
   const { data, error } = await supabase
     .from("assignments")
     .insert({
+      id: assignmentId,
       title: parsed.data.title,
       description: parsed.data.description,
       rubric: parsed.data.rubric,
       expected_output: parsed.data.expected_output || null,
+      task_file_path: taskFile?.path ?? null,
+      task_file_name: taskFile?.name ?? null,
       max_score: parsed.data.max_score,
       deadline: deadline.iso,
       allow_resubmit: parsed.data.allow_resubmit,
@@ -84,6 +143,9 @@ export async function createAssignmentAction(
 
   if (error || !data) {
     console.error("createAssignmentAction failed:", error?.message);
+    if (taskFile) {
+      await supabase.storage.from("assignment-tasks").remove([taskFile.path]);
+    }
     return { status: "error", error: t("errors.createFailed") };
   }
 
@@ -116,7 +178,22 @@ export async function updateAssignmentAction(
     return { status: "error", error: t("errors.deadline") };
   }
 
+  const profile = await getCurrentProfile();
   const supabase = await createClient();
+
+  let taskFile: TaskFile | null = null;
+  try {
+    taskFile = await uploadTaskFile(
+      supabase,
+      formData.get("task_file"),
+      profile?.id ?? "system",
+      assignmentId.data,
+    );
+  } catch (uploadError) {
+    console.error("task file upload failed:", uploadError);
+    return { status: "error", error: t("errors.taskFileFailed") };
+  }
+
   const { error } = await supabase
     .from("assignments")
     .update({
@@ -124,6 +201,9 @@ export async function updateAssignmentAction(
       description: parsed.data.description,
       rubric: parsed.data.rubric,
       expected_output: parsed.data.expected_output || null,
+      ...(taskFile
+        ? { task_file_path: taskFile.path, task_file_name: taskFile.name }
+        : {}),
       max_score: parsed.data.max_score,
       deadline: deadline.iso,
       allow_resubmit: parsed.data.allow_resubmit,
@@ -132,6 +212,9 @@ export async function updateAssignmentAction(
 
   if (error) {
     console.error("updateAssignmentAction failed:", error.message);
+    if (taskFile) {
+      await supabase.storage.from("assignment-tasks").remove([taskFile.path]);
+    }
     return { status: "error", error: t("errors.saveFailed") };
   }
 

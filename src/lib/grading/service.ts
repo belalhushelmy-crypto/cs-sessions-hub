@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SubmissionStatus } from "@/lib/types";
 import { GradingError, gradeCode, gradingConfig, isGradingConfigured } from "./gemini";
+import { parseFileForGrading } from "./files";
+import type { GradingAttachment } from "./schema";
 
 export const MAX_GRADING_ATTEMPTS = 3;
 
@@ -12,6 +14,7 @@ const STALE_LOCK_MS = 2 * 60_000;
 type SubmissionRow = {
   id: string;
   code_text: string;
+  file_path: string | null;
   status: SubmissionStatus;
   final_score: number | string | null;
   graded_by: string | null;
@@ -22,6 +25,8 @@ type SubmissionRow = {
     description: string;
     rubric: string;
     expected_output: string | null;
+    task_file_path: string | null;
+    task_file_name: string | null;
     max_score: number | string;
   } | null;
 };
@@ -87,7 +92,7 @@ export async function gradeSubmissionById(
   const { data, error } = await admin
     .from("submissions")
     .select(
-      "id, code_text, status, final_score, graded_by, grading_attempts, grading_locked_at, assignments(title, description, rubric, expected_output, max_score)",
+      "id, code_text, file_path, status, final_score, graded_by, grading_attempts, grading_locked_at, assignments(title, description, rubric, expected_output, task_file_path, task_file_name, max_score)",
     )
     .eq("id", submissionId)
     .maybeSingle()
@@ -145,6 +150,48 @@ export async function gradeSubmissionById(
   const maxScore = toNumber(assignment.max_score) ?? 100;
 
   try {
+    // Read the actual submitted file, not just its stored text preview:
+    // notebooks are parsed cell-by-cell and binary files are passed to Gemini.
+    let code = data.code_text;
+    const attachments: GradingAttachment[] = [];
+
+    if (data.file_path) {
+      const { data: blob, error: downloadError } = await admin.storage
+        .from("submissions")
+        .download(data.file_path);
+      if (downloadError || !blob) {
+        console.error("grading: submission file download failed:", downloadError?.message);
+      } else {
+        const parsed = parseFileForGrading(
+          new Uint8Array(await blob.arrayBuffer()),
+          data.file_path,
+        );
+        if (parsed.text.trim()) code = parsed.text;
+        if (parsed.attachment) {
+          attachments.push({ ...parsed.attachment, label: "student submission" });
+        }
+      }
+    }
+
+    let taskFileText: string | null = null;
+    if (assignment.task_file_path) {
+      const { data: blob, error: downloadError } = await admin.storage
+        .from("assignment-tasks")
+        .download(assignment.task_file_path);
+      if (downloadError || !blob) {
+        console.error("grading: task file download failed:", downloadError?.message);
+      } else {
+        const parsed = parseFileForGrading(
+          new Uint8Array(await blob.arrayBuffer()),
+          assignment.task_file_name || assignment.task_file_path,
+        );
+        taskFileText = parsed.text;
+        if (parsed.attachment) {
+          attachments.push({ ...parsed.attachment, label: "assignment task" });
+        }
+      }
+    }
+
     const result = await gradeCode(
       {
         title: assignment.title,
@@ -152,7 +199,9 @@ export async function gradeSubmissionById(
         rubric: assignment.rubric,
         expectedOutput: assignment.expected_output,
         maxScore,
-        code: data.code_text,
+        code,
+        taskFileText,
+        attachments,
       },
       { maxAttempts: options.maxAttempts },
     );

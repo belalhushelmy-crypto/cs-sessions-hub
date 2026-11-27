@@ -31,6 +31,7 @@ type AssignmentRow = {
   description: string;
   rubric: string;
   expected_output: string | null;
+  task_file_name: string | null;
   deadline: string | null;
   max_score: number | string;
   allow_resubmit: boolean;
@@ -77,7 +78,7 @@ export default async function AdminAssignmentPage({
     supabase
       .from("assignments")
       .select(
-        "id, title, description, rubric, expected_output, deadline, max_score, allow_resubmit, similarity_checked_at, allowed_submission_types",
+        "id, title, description, rubric, expected_output, task_file_name, deadline, max_score, allow_resubmit, similarity_checked_at, allowed_submission_types",
       )
       .eq("id", parsedId.data)
       .maybeSingle()
@@ -206,6 +207,7 @@ export default async function AdminAssignmentPage({
             description: assignment.description,
             rubric: assignment.rubric,
             expected_output: assignment.expected_output,
+            task_file_name: assignment.task_file_name,
             max_score: assignment.max_score,
             deadline: assignment.deadline,
             allow_resubmit: assignment.allow_resubmit,

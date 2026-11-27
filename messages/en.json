@@ -425,7 +425,8 @@
         "fileEmpty": "The file is empty.",
         "fileNotText": "The file is not valid UTF-8 text.",
         "uploadFailed": "Could not upload the file. Please try again.",
-        "saveFailed": "Could not save the attempt. Please try again."
+        "saveFailed": "Could not save the attempt. Please try again.",
+        "taskFileFailed": "The task file must be an .ipynb, image or PDF under 10 MB."
       },
       "exportGrades": "Export grades (CSV)",
       "allowedTypesLabel": "Allowed submission types",
@@ -445,7 +446,10 @@
       "codeLabel": "Paste your Python code",
       "codePlaceholder": "#include <iostream>\n\nint main() {\n    // Your code here\n    return 0;\n}",
       "codeHint": "Paste your solution. Tab inserts spaces.",
-      "chars": "chars"
+      "chars": "chars",
+      "taskFileLabel": "Task file (optional)",
+      "taskFileHint": "Optional .ipynb, image or PDF up to 10 MB. Use it when the task is not written above.",
+      "currentTaskFile": "Current task file"
     },
     "assignment": {
       "back": "All assignments",
@@ -492,7 +496,8 @@
         "invalid": "Check the fields and try again.",
         "deadline": "Choose a valid deadline.",
         "saveFailed": "Could not save the changes. Please try again.",
-        "notFound": "This assignment no longer exists."
+        "notFound": "This assignment no longer exists.",
+        "taskFileFailed": "The task file must be an .ipynb, image or PDF under 10 MB."
       },
       "similarityLoadError": "Could not load similarity pairs."
     },
@@ -543,7 +548,8 @@
         "rateLimited": "The grading service is busy (rate limit). Try again shortly.",
         "timeout": "The grading model did not answer in time.",
         "invalidResponse": "The model returned an invalid answer. Try again."
-      }
+      },
+      "openInColab": "Open in Google Colab"
     },
     "points": {
       "title": "Points & leaderboard",
@@ -832,7 +838,7 @@
   },
   "assignments": {
     "title": "Assignments",
-    "subtitle": "Upload your .py file and read the feedback.",
+    "subtitle": "Upload your .py, notebook, image or PDF and read the feedback.",
     "loadError": "Could not load assignments. Refresh the page.",
     "empty": "No assignments yet. Check back after your next session.",
     "listTitle": "All assignments",
@@ -855,7 +861,7 @@
     "expectedOutput": "Expected output",
     "yourWork": "Your attempts",
     "noAttempts": "No attempts yet.",
-    "noAttemptsHint": "Upload a .py file to get AI feedback; every attempt stays here.",
+    "noAttemptsHint": "Upload a .py, .ipynb, image or PDF to get AI feedback; every attempt stays here.",
     "attemptLabel": "Attempt {count}",
     "aiFeedback": "AI feedback",
     "issues": "What to fix",
@@ -865,8 +871,8 @@
     "statusPending": "Pending grading",
     "uploadTitle": "Submit your solution",
     "uploadSubtitle": "Choose how to submit based on what your teacher allowed.",
-    "chooseFile": "Choose .py file",
-    "fileHint": "Max 100 KB, UTF-8 text",
+    "chooseFile": "Choose a file",
+    "fileHint": ".py, .ipynb, images or PDF · max 10 MB",
     "submit": "Submit for grading",
     "submitting": "Submitting…",
     "resubmit": "Submit another attempt",
@@ -875,7 +881,7 @@
     "maxScore": "out of {max}",
     "closedNotice": "The deadline has passed, so submissions are closed.",
     "resubmitNotice": "This assignment does not accept new attempts.",
-    "tabFile": "Upload .py file",
+    "tabFile": "Upload file",
     "tabPaste": "Paste code",
     "submissionMethod": "Submission method",
     "codeLabel": "Paste your Python code",
@@ -889,17 +895,18 @@
       "deadlinePassed": "The deadline for this assignment has passed.",
       "resubmitNotAllowed": "You cannot upload another attempt for this assignment.",
       "tooManyUploads": "Too many uploads. Try again in {seconds} seconds.",
-      "fileMissing": "Choose a .py file first.",
-      "fileType": "Only .py files are accepted.",
-      "fileSize": "The file is larger than 100 KB.",
+      "fileMissing": "Choose a file first.",
+      "fileType": "Only .py, .ipynb, image or PDF files are accepted.",
+      "fileSize": "The file is larger than 10 MB.",
       "fileEmpty": "The file is empty.",
-      "fileNotText": "The file is not valid UTF-8 text.",
+      "fileNotText": "The text file is not valid UTF-8.",
       "uploadFailed": "Could not upload the file. Please try again.",
       "saveFailed": "Could not save the attempt. Please try again.",
       "codeMissing": "Paste your Python code.",
       "codeInvalid": "Code must be between 1 and 100,000 characters.",
       "invalidType": "This submission type is not allowed for this assignment."
-    }
+    },
+    "taskFile": "Open task file"
   },
   "progress": {
     "title": "My progress",
