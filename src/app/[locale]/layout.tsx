@@ -2,21 +2,14 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Cairo, Inter } from "next/font/google";
+import { IBM_Plex_Sans_Arabic, Inter, JetBrains_Mono, Outfit } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  variable: "--font-cairo",
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+const plexArabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic", "latin"], weight: ["400","500","600","700"], variable: "--font-plex-arabic", display: "swap" });
 
 // Every page reads auth cookies; nothing is prerendered at build time
 // (keeps `next build` free of Supabase credentials).
@@ -68,7 +61,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={locale === "ar" ? "rtl" : "ltr"}
-      className={`${inter.variable} ${cairo.variable}`}
+      className={`${inter.variable} ${outfit.variable} ${jetbrains.variable} ${plexArabic.variable}`}
       suppressHydrationWarning
     >
       <head>
