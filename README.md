@@ -468,3 +468,12 @@ dynamic rendering everywhere (all pages depend on auth cookies).
   admin review/override, per-student rate limits.
 - **Phase 5:** similarity checking, announcements CRUD, CSV exports, analytics, i18n polish.
 - **Phase 6 (this):** accessibility pass, seed enrichment for the analytics views, launch checklist.
+
+## Manual access checklist (Part A)
+
+Roles come from `profiles.role`. Test in both `/en` and `/ar`, including direct URLs:
+- **admin**: can open every `/admin/*` page, including `/admin/roles` and `/admin/ai-grading`; can trigger AI grading and change roles.
+- **teacher**: can open `/admin`, `/admin/sessions`, `/admin/sessions/[id]`, `/admin/assignments`, review pages, students, analytics, points, announcements, attendance; **cannot** open `/admin/roles` or `/admin/ai-grading` (redirected to `/admin`) and sees no AI trigger buttons or nav items.
+- **student**: can open `/dashboard`, `/sessions`, `/sessions/[id]`, `/assignments`, `/attendance`, `/progress`, `/leaderboard`; `/admin/*` redirects to `/dashboard`. Materials are read-only and visible for past/current sessions regardless of attendance.
+- **Wrong-role RPC/API calls**: teacher calling role-change or AI actions, and student calling any staff action, must return `forbidden`; verify by calling the server action directly.
+- **Database**: `is_staff()` is admin OR teacher; student-owned policies, grading-column write restrictions, leaderboard privacy and private submission storage are unchanged.

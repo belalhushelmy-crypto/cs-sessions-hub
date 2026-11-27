@@ -53,7 +53,7 @@ export default async function SubmissionReviewPage({
   const locale = toLocale(raw);
   setRequestLocale(locale);
 
-  await requireStaff(locale);
+  const staff = await requireStaff(locale);
 
   const assignmentId = idSchema.safeParse(id);
   const parsedSubmissionId = idSchema.safeParse(submissionId);
@@ -271,9 +271,10 @@ export default async function SubmissionReviewPage({
           <Card>
             <CardHeader title={t("regradeTitle")} description={t("regradeSubtitle")} />
             <div className="p-5">
-              {grading.configured ? (
+              <p className="text-xs text-muted-foreground">{t("aiDisclosure")}</p>
+              {staff.role === "admin" && grading.configured ? (
                 <GradeSubmissionButton locale={locale} submissionId={data.id} />
-              ) : (
+              ) : staff.role !== "admin" ? null : (
                 <Alert tone="info">{t("errors.gradingNotConfigured")}</Alert>
               )}
             </div>

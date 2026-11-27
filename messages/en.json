@@ -500,7 +500,8 @@
         "notFound": "This assignment no longer exists.",
         "taskFileFailed": "The task file must be an .ipynb, image or PDF under 10 MB."
       },
-      "similarityLoadError": "Could not load similarity pairs."
+      "similarityLoadError": "Could not load similarity pairs.",
+      "aiDisclosure": "AI feedback is a suggestion only. The teacher's final score is what counts."
     },
     "review": {
       "back": "Back to assignment",
@@ -550,7 +551,8 @@
         "timeout": "The grading model did not answer in time.",
         "invalidResponse": "The model returned an invalid answer. Try again."
       },
-      "openInColab": "Open in Google Colab"
+      "openInColab": "Open in Google Colab",
+      "aiDisclosure": "AI feedback is a suggestion only. Your final score is what counts."
     },
     "points": {
       "title": "Points & leaderboard",
@@ -1024,8 +1026,39 @@
       "missingModel": "Choose a model first.",
       "fetchFailed": "Could not fetch models ({status}).",
       "noModels": "This key has no compatible grading models.",
-      "saveFailed": "Could not save the AI settings."
-    }
+      "saveFailed": "Could not save the AI settings.",
+      "invalid": "Check the settings and try again."
+    },
+    "master": "Master controls",
+    "masterHint": "One place for every AI grading setting.",
+    "autoGrade": "Auto-grade on upload",
+    "mockMode": "Mock mode (no API calls)",
+    "envConfigured": "API key configured on the server.",
+    "envMissing": "No server API key. Add GEMINI_API_KEY or save one below.",
+    "model": "Grading model",
+    "maxAttempts": "Max attempts",
+    "uploadRateLimit": "Upload rate limit",
+    "timeout": "Timeout (s)",
+    "retries": "Retries",
+    "feedbackLanguage": "Feedback language",
+    "both": "Both",
+    "instructions": "Default grading instructions",
+    "guardNote": "Prompt-injection guard is always active and cannot be edited.",
+    "graded": "Graded {count} queued submissions.",
+    "regraded": "Regrade requested.",
+    "queue": "Queue",
+    "queueHint": "Automatic grading runs and failures.",
+    "queuedLabel": "Queued",
+    "gradedLabel": "Graded by AI",
+    "failedLabel": "Failed",
+    "gradeQueued": "Grade queued",
+    "regrade": "Regrade",
+    "noFailures": "No failed runs.",
+    "overrides": "Per-assignment overrides",
+    "overridesHint": "Turn AI grading on or off for one assignment.",
+    "noOverrides": "No overrides yet.",
+    "enable": "Enable AI",
+    "disable": "Disable AI"
   },
   "sessions": {
     "title": "Sessions",

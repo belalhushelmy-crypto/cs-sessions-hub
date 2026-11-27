@@ -30,6 +30,10 @@ export type GradingConfig = {
   apiKey: string | null;
   model: string;
   mock: boolean;
+  timeoutMs?: number;
+  maxAttempts?: number;
+  defaultInstructions?: string;
+  feedbackLanguage?: "en" | "ar" | "both";
 };
 
 export function gradingConfig(): GradingConfig {
@@ -57,15 +61,22 @@ async function storedGradingConfig(): Promise<GradingConfig | null> {
   try {
     const admin = createAdminClient();
     const { data } = await admin
-      .from("ai_grading_settings")
-      .select("api_key, model")
+      .from("ai_settings")
+      .select("api_key, model, mock_mode, timeout_seconds, retry_attempts, default_instructions, feedback_language")
       .eq("id", true)
       .maybeSingle();
-    if (!data?.api_key) return null;
+    if (!data) return null;
     return {
-      apiKey: data.api_key,
+      apiKey: data.api_key?.trim() || null,
       model: data.model?.trim() || DEFAULT_MODEL,
-      mock: false,
+      mock: Boolean(data.mock_mode),
+      timeoutMs: data.timeout_seconds ? data.timeout_seconds * 1000 : undefined,
+      maxAttempts: data.retry_attempts ?? undefined,
+      defaultInstructions: data.default_instructions ?? "",
+      feedbackLanguage:
+        data.feedback_language === "en" || data.feedback_language === "ar"
+          ? data.feedback_language
+          : "both",
     };
   } catch (error) {
     console.error("AI grading settings lookup failed:", error);
@@ -74,7 +85,10 @@ async function storedGradingConfig(): Promise<GradingConfig | null> {
 }
 
 export async function effectiveGradingConfig(): Promise<GradingConfig> {
-  return (await storedGradingConfig()) ?? gradingConfig();
+  const env = gradingConfig();
+  const stored = await storedGradingConfig();
+  if (!stored) return env;
+  return { ...env, ...stored, apiKey: stored.apiKey ?? env.apiKey };
 }
 
 export async function isGradingConfiguredAsync(): Promise<boolean> {
@@ -216,9 +230,13 @@ export async function gradeCode(
     throw new GradingError("config", "GEMINI_API_KEY is not configured.");
   }
 
-  const maxAttempts = Math.min(
-    MAX_ATTEMPTS,
-    Math.max(1, options.maxAttempts ?? MAX_ATTEMPTS),
+  const maxAttempts = Math.max(
+    1,
+    Math.min(
+      MAX_ATTEMPTS,
+      config.maxAttempts ?? MAX_ATTEMPTS,
+      options.maxAttempts ?? MAX_ATTEMPTS,
+    ),
   );
 
   const parts: Array<{ text?: string; inline_data?: { mime_type: string; data: string } }> = [
@@ -234,7 +252,9 @@ export async function gradeCode(
   }
 
   const body = JSON.stringify({
-    systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
+    systemInstruction: {
+      parts: [{ text: buildSystemPrompt(config.defaultInstructions, config.feedbackLanguage) }],
+    },
     contents: [{ role: "user", parts }],
     generationConfig: {
       temperature: 0.2,
@@ -257,7 +277,7 @@ export async function gradeCode(
           "x-goog-api-key": config.apiKey,
         },
         body,
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        signal: AbortSignal.timeout(config.timeoutMs ?? REQUEST_TIMEOUT_MS),
         cache: "no-store",
       });
 

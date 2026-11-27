@@ -5,7 +5,6 @@ import { AssignmentForm } from "@/components/admin/assignment-form";
 import { CsvDownloadButton } from "@/components/admin/csv-download-button";
 import { DeleteAssignmentForm } from "@/components/admin/delete-assignment-form";
 import { GradePendingButton } from "@/components/admin/grade-pending-button";
-import { AiGradingSettings } from "@/components/admin/ai-grading-settings";
 import { SimilarityPanel } from "@/components/admin/similarity-panel";
 import {
   Alert,
@@ -19,7 +18,6 @@ import {
 import { requireStaff } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { gradingStatusAsync } from "@/lib/grading/gemini";
 import { formatDate, formatNumber, initials } from "@/lib/utils";
 import { idSchema } from "@/lib/validation";
@@ -65,7 +63,7 @@ export default async function AdminAssignmentPage({
   const locale = toLocale(raw);
   setRequestLocale(locale);
 
-  await requireStaff(locale);
+  const staff = await requireStaff(locale);
 
   const parsedId = idSchema.safeParse(id);
   if (!parsedId.success) notFound();
@@ -108,13 +106,6 @@ export default async function AdminAssignmentPage({
   const grading = await gradingStatusAsync();
   const maxScore = Number(assignment.max_score) || 100;
 
-  const { data: aiSettings } = await createAdminClient()
-    .from("ai_grading_settings")
-    .select("api_key, model")
-    .eq("id", true)
-    .maybeSingle();
-
-  // Attempt numbers per student (1 = first upload).
   const byStudent = new Map<string, SubmissionRow[]>();
   for (const row of submissions) {
     const list = byStudent.get(row.student_id) ?? [];
@@ -223,12 +214,6 @@ export default async function AdminAssignmentPage({
         />
 
         <div className="space-y-6">
-          <AiGradingSettings
-            locale={locale}
-            currentModel={aiSettings?.model ?? grading.model}
-            hasKey={Boolean(aiSettings?.api_key)}
-          />
-
           <Card>
             <CardHeader title={t("gradingTitle")} description={t("gradingSubtitle")} />
             <div className="space-y-4 p-5">
@@ -240,11 +225,15 @@ export default async function AdminAssignmentPage({
                 <Alert tone="info">{t("gradingMissing")}</Alert>
               )}
 
-              <GradePendingButton
-                locale={locale}
-                assignmentId={assignment.id}
-                pendingCount={overview?.pending_count ?? 0}
-              />
+              <p className="text-xs text-muted-foreground">{t("aiDisclosure")}</p>
+
+              {staff.role === "admin" ? (
+                <GradePendingButton
+                  locale={locale}
+                  assignmentId={assignment.id}
+                  pendingCount={overview?.pending_count ?? 0}
+                />
+              ) : null}
 
               {(overview?.pending_count ?? 0) === 0 ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400">
