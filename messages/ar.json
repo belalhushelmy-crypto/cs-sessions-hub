@@ -47,7 +47,8 @@
     "analytics": "التحليلات",
     "announcements": "الإعلانات",
     "accountMenu": "قائمة الحساب",
-    "roles": "الصلاحيات"
+    "roles": "الصلاحيات",
+    "aiGrading": "تصحيح الذكاء الاصطناعي"
   },
   "roles": {
     "admin": "المدير",
@@ -1024,6 +1025,50 @@
       "fetchFailed": "تعذّر جلب النماذج ({status}).",
       "noModels": "لا توجد نماذج متوافقة مع هذا المفتاح.",
       "saveFailed": "تعذّر حفظ إعدادات الذكاء الاصطناعي."
+    }
+  },
+  "sessions": {
+    "title": "الجلسات",
+    "subtitle": "جلساتك وحضورك والملفات المشتركة.",
+    "listTitle": "كل الجلسات",
+    "empty": "لا توجد جلسات بعد.",
+    "loadError": "تعذّر تحميل الجلسات. حدّث الصفحة.",
+    "notRecorded": "لم يُسجَّل",
+    "view": "فتح",
+    "back": "كل الجلسات",
+    "materialsTitle": "ملفات الجلسة",
+    "materialsSubtitle": "عروض ودفاتر وروابط وملاحظات مشتركة لهذه الجلسة.",
+    "noMaterials": "لم تتم مشاركة أي ملفات لهذه الجلسة.",
+    "download": "تنزيل",
+    "openLink": "فتح الرابط",
+    "materialsCount": "{count, plural, =0 {لا ملفات} one {ملف واحد} two {ملفان} few {# ملفات} many {# ملفًا} other {# ملف}}"
+  },
+  "materials": {
+    "title": "الملفات",
+    "subtitle": "أضف ملفًا أو رابطًا أو ملاحظة لهذه الجلسة.",
+    "titleLabel": "العنوان",
+    "fileLabel": "الملف",
+    "fileHint": "PDF أو PPTX أو DOCX أو XLSX أو ZIP أو صور أو دفاتر أو سكربتات أو CSV أو TXT · بحد أقصى 25 م.ب",
+    "urlLabel": "رابط URL",
+    "noteLabel": "ملاحظة",
+    "position": "الترتيب",
+    "published": "منشور",
+    "add": "إضافة",
+    "draft": "مسودة",
+    "unpublish": "إلغاء النشر",
+    "publish": "نشر",
+    "delete": "حذف",
+    "kind": {
+      "file": "ملف",
+      "link": "رابط",
+      "note": "ملاحظة"
+    },
+    "errors": {
+      "forbidden": "المدرسون والأدمن فقط هم من يديرون الملفات.",
+      "invalid": "الملف أو المادة غير صالح.",
+      "notFound": "الملف غير موجود.",
+      "upload": "تعذّر رفع الملف.",
+      "save": "تعذّر حفظ الملف."
     }
   }
 }

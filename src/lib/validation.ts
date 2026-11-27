@@ -109,6 +109,14 @@ export const SESSION_FILE_EXTENSIONS = [
 /** Session materials may be up to 100 MB. */
 export const MAX_SESSION_FILE_BYTES = 100 * 1024 * 1024;
 
+export const MATERIAL_EXTENSIONS = [
+  ".pdf", ".pptx", ".docx", ".xlsx", ".zip", ".png", ".jpg", ".jpeg",
+  ".ipynb", ".py", ".csv", ".txt",
+] as const;
+
+/** Materials bucket limit (25 MB). */
+export const MAX_MATERIAL_BYTES = 25 * 1024 * 1024;
+
 export function fileExtension(name: string): string {
   const dot = name.lastIndexOf(".");
   return dot < 0 ? "" : name.slice(dot).toLowerCase();
@@ -125,13 +133,18 @@ export function mimeForExtension(extension: string): string {
   const types: Record<string, string> = {
     ".py": "text/x-python",
     ".ipynb": "application/x-ipynb+json",
-    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     ".png": "image/png",
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
     ".webp": "image/webp",
     ".gif": "image/gif",
     ".pdf": "application/pdf",
+    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".zip": "application/zip",
+    ".csv": "text/csv",
+    ".txt": "text/plain",
   };
   return types[extension] ?? "application/octet-stream";
 }

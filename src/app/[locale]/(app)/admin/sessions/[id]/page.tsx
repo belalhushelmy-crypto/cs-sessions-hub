@@ -9,6 +9,7 @@ import { CsvDownloadButton } from "@/components/admin/csv-download-button";
 import { DeleteSessionForm } from "@/components/admin/delete-session-form";
 import { EditSessionForm } from "@/components/admin/edit-session-form";
 import { SessionFilesManager } from "@/components/admin/session-files-manager";
+import { MaterialsPanel } from "@/components/admin/materials-panel";
 import { Alert, Card, PageHeader, buttonSecondary } from "@/components/ui";
 import { requireStaff } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
@@ -45,6 +46,17 @@ type SessionFileRow = {
   size_bytes: number;
 };
 
+type MaterialRow = {
+  id: string;
+  title: string;
+  kind: "file" | "link" | "note";
+  url: string | null;
+  note_body: string | null;
+  position: number;
+  published: boolean;
+  storage_path: string | null;
+};
+
 export default async function AdminSessionPage({
   params,
 }: {
@@ -63,7 +75,7 @@ export default async function AdminSessionPage({
   const tc = await getTranslations("common");
 
   const supabase = await createClient();
-  const [sessionsResult, studentsResult, attendanceResult, filesResult] = await Promise.all([
+  const [sessionsResult, studentsResult, attendanceResult, filesResult, materialsResult] = await Promise.all([
     supabase.rpc("admin_list_sessions"),
     supabase
       .from("profiles")
@@ -82,6 +94,12 @@ export default async function AdminSessionPage({
       .eq("session_id", sessionId.data)
       .order("created_at", { ascending: false })
       .returns<SessionFileRow[]>(),
+    supabase
+      .from("session_materials")
+      .select("id, title, kind, url, note_body, position, published, storage_path")
+      .eq("session_id", sessionId.data)
+      .order("position", { ascending: true })
+      .returns<MaterialRow[]>(),
   ]);
 
   const session = ((sessionsResult.data ?? []) as AdminSessionRow[]).find(
@@ -126,7 +144,8 @@ export default async function AdminSessionPage({
   }
 
   const hasError = Boolean(
-    sessionsResult.error || studentsResult.error || attendanceResult.error || filesResult.error,
+    sessionsResult.error || studentsResult.error || attendanceResult.error || filesResult.error ||
+    materialsResult.error,
   );
 
   const sessionFiles = (filesResult.data ?? []).map((file) => ({
@@ -135,6 +154,18 @@ export default async function AdminSessionPage({
     size: Number(file.size_bytes),
     contentType: file.content_type,
     url: supabase.storage.from("session-materials").getPublicUrl(file.file_path).data.publicUrl,
+  }));
+
+  const materials = (materialsResult.data ?? []).map((material) => ({
+    id: material.id,
+    title: material.title,
+    kind: material.kind,
+    url: material.url,
+    note_body: material.note_body,
+    position: material.position,
+    published: material.published,
+    file_name: material.storage_path?.split("/").pop() ?? null,
+    size_bytes: null,
   }));
 
   return (
@@ -167,6 +198,12 @@ export default async function AdminSessionPage({
         active={active}
         qrDataUrl={qrDataUrl}
         checkInUrl={checkInUrl}
+      />
+
+      <MaterialsPanel
+        locale={locale}
+        sessionId={session.id}
+        items={materials}
       />
 
       <SessionFilesManager

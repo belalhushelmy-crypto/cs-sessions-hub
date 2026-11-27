@@ -47,7 +47,8 @@
     "analytics": "Analytics",
     "announcements": "Announcements",
     "accountMenu": "Account menu",
-    "roles": "Roles"
+    "roles": "Roles",
+    "aiGrading": "AI grading"
   },
   "roles": {
     "admin": "Admin",
@@ -1024,6 +1025,50 @@
       "fetchFailed": "Could not fetch models ({status}).",
       "noModels": "This key has no compatible grading models.",
       "saveFailed": "Could not save the AI settings."
+    }
+  },
+  "sessions": {
+    "title": "Sessions",
+    "subtitle": "Your class sessions, attendance and shared materials.",
+    "listTitle": "All sessions",
+    "empty": "No sessions yet.",
+    "loadError": "Could not load sessions. Refresh the page.",
+    "notRecorded": "Not marked",
+    "view": "Open",
+    "back": "All sessions",
+    "materialsTitle": "Session materials",
+    "materialsSubtitle": "Slides, notebooks, links and notes shared for this session.",
+    "noMaterials": "No materials have been shared for this session.",
+    "download": "Download",
+    "openLink": "Open link",
+    "materialsCount": "{count, plural, =0 {No materials} one {# material} other {# materials}}"
+  },
+  "materials": {
+    "title": "Materials",
+    "subtitle": "Add file, link or note materials for this session.",
+    "titleLabel": "Title",
+    "fileLabel": "File",
+    "fileHint": "PDF, PPTX, DOCX, XLSX, ZIP, images, notebooks, scripts, CSV or TXT · max 25 MB",
+    "urlLabel": "Link URL",
+    "noteLabel": "Note",
+    "position": "Order",
+    "published": "Published",
+    "add": "Add material",
+    "draft": "Draft",
+    "unpublish": "Unpublish",
+    "publish": "Publish",
+    "delete": "Delete",
+    "kind": {
+      "file": "File",
+      "link": "Link",
+      "note": "Note"
+    },
+    "errors": {
+      "forbidden": "Only teachers and admins can manage materials.",
+      "invalid": "Invalid material or file.",
+      "notFound": "Material not found.",
+      "upload": "Could not upload the file.",
+      "save": "Could not save the material."
     }
   }
 }
