@@ -46,7 +46,7 @@ export function SiteHeader({ profile }: { profile: Profile }) {
     item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
+    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl dark:border-slate-800/70 dark:bg-slate-950/85">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-3 sm:px-6">
         <Link
           href={home}
@@ -67,7 +67,7 @@ export function SiteHeader({ profile }: { profile: Profile }) {
               className={cn(
                 "rounded-lg px-3 py-2 text-sm font-medium transition",
                 isActive(item)
-                  ? "bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-300"
+                  ? "bg-bronze-50 text-bronze-700 dark:bg-bronze-500/10 dark:text-bronze-300"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
               )}
               aria-current={isActive(item) ? "page" : undefined}

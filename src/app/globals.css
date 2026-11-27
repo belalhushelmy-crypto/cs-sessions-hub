@@ -56,12 +56,13 @@
   --color-accent-900: var(--color-bronze-900);
   --color-accent-950: var(--color-bronze-950);
 
-  --color-background-light: #f8fafc;
-  --color-background-dark: #0a1a2f;
+  --color-background-light: #f6f8fc;
+  --color-background-dark: #070d16;
   --color-surface-light: #ffffff;
-  --color-surface-dark: #11223a;
-  --color-surface-elevated-light: #f1f5f9;
-  --color-surface-elevated-dark: #1a2e4a;
+  --color-surface-dark: #0f1c2e;
+  --color-surface-elevated-light: #eef3f9;
+  --color-surface-elevated-dark: #172a42;
+  --color-data-cyan: #38bdf8;
 }
 
 @layer base {
@@ -73,7 +74,10 @@
   body {
     font-family: var(--font-sans);
     background-color: var(--color-background-light);
-    background-image: radial-gradient(70rem 30rem at 100% -10%, rgb(42 89 160 / 0.08), transparent 60%);
+    background-image:
+      radial-gradient(60rem 28rem at 100% -12%, rgb(181 138 91 / 0.1), transparent 62%),
+      radial-gradient(50rem 26rem at -10% 8%, rgb(56 189 248 / 0.08), transparent 60%);
+    background-attachment: fixed;
     color: #0f172a;
     min-height: 100dvh;
   }
@@ -84,7 +88,9 @@
 
   .dark body {
     background-color: var(--color-background-dark);
-    background-image: radial-gradient(70rem 30rem at 100% -10%, rgb(42 89 160 / 0.12), transparent 60%);
+    background-image:
+      radial-gradient(62rem 30rem at 100% -12%, rgb(181 138 91 / 0.14), transparent 62%),
+      radial-gradient(52rem 28rem at -12% 6%, rgb(56 189 248 / 0.1), transparent 60%);
     color: #f0f4f8;
   }
 
@@ -95,6 +101,18 @@
   :focus-visible {
     outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(148 163 184 / 0.35);
+    border-radius: 9999px;
   }
 }
 
@@ -112,6 +130,41 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .delay-75 { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-225 { animation-delay: 225ms; }
+  .delay-300 { animation-delay: 300ms; }
+
+  .text-data {
+    color: var(--color-data-cyan);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

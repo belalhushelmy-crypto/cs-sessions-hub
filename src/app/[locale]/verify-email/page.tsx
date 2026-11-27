@@ -26,8 +26,8 @@ export default async function VerifyEmailPage({
   return (
     <main className="min-h-dvh lg:grid lg:grid-cols-2">
       <aside className="relative hidden overflow-hidden bg-navy-900 p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <div className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-primary-500/25 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -left-24 size-96 rounded-full bg-accent-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-bronze-500/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-24 size-96 rounded-full bg-cyan-400/20 blur-3xl" />
 
         <div className="relative z-10 flex items-center gap-3">
           <BrandMark className="size-12" variant="dark" />
