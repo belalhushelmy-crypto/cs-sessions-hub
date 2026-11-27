@@ -1,5 +1,5 @@
 export type UserRole = "student" | "teacher" | "admin";
-export type AttendanceStatus = "present" | "absent" | "late";
+export type AttendanceStatus = "present" | "absent" | "late" | "excused";
 export type SubmissionStatus = "pending" | "graded" | "flagged";
 export type SubmissionType = "file" | "text";
 export type AllowedSubmissionTypes = "file" | "text" | "both";

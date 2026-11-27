@@ -33,6 +33,8 @@ const statusClasses: Record<AttendanceStatus | "none", string> = {
   late: "bg-amber-50 text-amber-700 ring-amber-600/10 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20",
   absent:
     "bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/20",
+  excused:
+    "bg-sky-50 text-sky-700 ring-sky-600/10 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-400/20",
   none: "bg-slate-100 text-slate-600 ring-slate-500/10 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-400/20",
 };
 
@@ -91,7 +93,7 @@ export default async function StudentAttendancePage({
     (attendanceResult.data ?? []).map((row) => [row.session_id, row.status]),
   );
 
-  const counts = { present: 0, late: 0, absent: 0 };
+  const counts = { present: 0, late: 0, absent: 0, excused: 0 };
   for (const session of sessions) {
     const status = statusBySession.get(session.id);
     if (status) counts[status] += 1;

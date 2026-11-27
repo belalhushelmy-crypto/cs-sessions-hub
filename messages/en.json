@@ -58,7 +58,8 @@
   "attendanceStatus": {
     "present": "Present",
     "absent": "Absent",
-    "late": "Late"
+    "late": "Late",
+    "excused": "Excused"
   },
   "auth": {
     "brandTitle": "Your data science class, organized.",
