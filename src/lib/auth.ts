@@ -43,10 +43,16 @@ export async function requireAdmin(locale: AppLocale): Promise<Profile> {
   return profile;
 }
 
-export async function requireTeacher(locale: AppLocale): Promise<Profile> {
+/** Admin OR teacher. Use for all teaching/staff areas. */
+export async function requireStaff(locale: AppLocale): Promise<Profile> {
   const profile = await requireProfile(locale);
   if (profile.role === "student") redirect(`/${locale}/dashboard`);
   return profile;
+}
+
+/** Backwards-compatible alias for callers that used requireTeacher. */
+export async function requireTeacher(locale: AppLocale): Promise<Profile> {
+  return requireStaff(locale);
 }
 
 export function homePath(locale: AppLocale, role: UserRole): string {

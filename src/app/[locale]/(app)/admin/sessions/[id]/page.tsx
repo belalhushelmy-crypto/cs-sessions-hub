@@ -10,7 +10,7 @@ import { DeleteSessionForm } from "@/components/admin/delete-session-form";
 import { EditSessionForm } from "@/components/admin/edit-session-form";
 import { SessionFilesManager } from "@/components/admin/session-files-manager";
 import { Alert, Card, PageHeader, buttonSecondary } from "@/components/ui";
-import { requireAdmin } from "@/lib/auth";
+import { requireStaff } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
@@ -54,7 +54,7 @@ export default async function AdminSessionPage({
   const locale = toLocale(raw);
   setRequestLocale(locale);
 
-  await requireAdmin(locale);
+  await requireStaff(locale);
 
   const sessionId = idSchema.safeParse(id);
   if (!sessionId.success) notFound();

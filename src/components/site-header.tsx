@@ -21,6 +21,14 @@ export function SiteHeader({ profile }: { profile: Profile }) {
   const isTeacherOrAdmin = profile.role === "teacher" || profile.role === "admin";
   const home = isTeacherOrAdmin ? "/admin" : "/dashboard";
 
+  const adminOnlyLinks: NavItem[] =
+    profile.role === "admin"
+      ? [
+          { href: "/admin/roles", label: t("roles") },
+          { href: "/admin/ai-grading", label: t("aiGrading") },
+        ]
+      : [];
+
   const links: NavItem[] =
     isTeacherOrAdmin
       ? [
@@ -29,13 +37,14 @@ export function SiteHeader({ profile }: { profile: Profile }) {
           { href: "/admin/assignments", label: t("assignments") },
           { href: "/admin/attendance", label: t("attendance") },
           { href: "/admin/students", label: t("students") },
-          { href: "/admin/roles", label: t("roles") },
           { href: "/admin/analytics", label: t("analytics") },
           { href: "/admin/points", label: t("points") },
           { href: "/admin/announcements", label: t("announcements") },
+          ...adminOnlyLinks,
         ]
       : [
           { href: "/dashboard", label: t("dashboard"), exact: true },
+          { href: "/sessions", label: t("sessions") },
           { href: "/assignments", label: t("assignments") },
           { href: "/attendance", label: t("attendance") },
           { href: "/progress", label: t("progress") },

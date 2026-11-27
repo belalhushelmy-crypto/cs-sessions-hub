@@ -22,9 +22,9 @@ import type {
   SubmissionReviewState,
 } from "@/lib/types";
 
-async function isCurrentUserAdmin(): Promise<boolean> {
+async function isCurrentUserStaff(): Promise<boolean> {
   const profile = await getCurrentProfile();
-  return profile?.role === "admin";
+  return profile?.role === "admin" || profile?.role === "teacher";
 }
 
 function parseAssignmentForm(formData: FormData) {
@@ -78,7 +78,7 @@ export async function createAssignmentAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.assignments" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 
@@ -163,7 +163,7 @@ export async function updateAssignmentAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.assignment" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 
@@ -229,7 +229,7 @@ export async function updateAssignmentAction(
 
 export async function deleteAssignmentAction(formData: FormData): Promise<void> {
   const locale = toLocale(formData.get("locale"));
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     redirect(`/${locale}/admin/assignments`);
   }
 
@@ -281,7 +281,7 @@ export async function reviewSubmissionAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.review" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 

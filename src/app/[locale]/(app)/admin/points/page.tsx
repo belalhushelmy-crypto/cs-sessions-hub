@@ -4,7 +4,7 @@ import { Alert, Card, CardHeader, EmptyState, PageHeader, StatCard, buttonSecond
 import { PointsConfigForm } from "@/components/admin/points-config-form";
 import { RecalculateBadgesButton } from "@/components/admin/recalculate-badges-button";
 import { ResetWeekButton } from "@/components/admin/reset-week-button";
-import { requireAdmin } from "@/lib/auth";
+import { requireStaff } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, formatNumber, initials } from "@/lib/utils";
@@ -19,7 +19,7 @@ export default async function AdminPointsPage({
   const locale = toLocale(raw);
   setRequestLocale(locale);
 
-  await requireAdmin(locale);
+  await requireStaff(locale);
   const t = await getTranslations("admin.points");
   const tp = await getTranslations("progress");
 

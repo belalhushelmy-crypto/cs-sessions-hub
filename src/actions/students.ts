@@ -24,9 +24,9 @@ import type {
   ResetPasswordState,
 } from "@/lib/types";
 
-async function isCurrentUserAdmin(): Promise<boolean> {
+async function isCurrentUserStaff(): Promise<boolean> {
   const profile = await getCurrentProfile();
-  return profile?.role === "admin";
+  return profile?.role === "admin" || profile?.role === "teacher";
 }
 
 function normalizeHeader(value: string): string {
@@ -40,7 +40,7 @@ export async function createStudentAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.students" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 
@@ -82,7 +82,7 @@ export async function importStudentsAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.students" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 
@@ -246,7 +246,7 @@ export async function resetPasswordAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.students" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 

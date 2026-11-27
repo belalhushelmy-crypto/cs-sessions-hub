@@ -7,9 +7,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 type ModelOption = { id: string; label: string };
 
-async function isStaff(): Promise<boolean> {
+async function isAdmin(): Promise<boolean> {
   const profile = await getCurrentProfile();
-  return Boolean(profile && (profile.role === "admin" || profile.role === "teacher"));
+  return profile?.role === "admin";
 }
 
 /** Fetches the generateContent-capable models available to the given key. */
@@ -17,7 +17,7 @@ export async function fetchAiModels(
   apiKey: string,
 ): Promise<{ ok: true; models: ModelOption[] } | { ok: false; error: string }> {
   const t = await getTranslations("aiGrading");
-  if (!(await isStaff())) return { ok: false, error: t("errors.forbidden") };
+  if (!(await isAdmin())) return { ok: false, error: t("errors.forbidden") };
   const key = apiKey.trim();
   if (!key) return { ok: false, error: t("errors.missingKey") };
 
@@ -65,7 +65,7 @@ export async function saveAiGradingSettings(payload: {
 }): Promise<{ ok: boolean; error?: string }> {
   const t = await getTranslations({ locale: payload.locale, namespace: "aiGrading" });
   const profile = await getCurrentProfile();
-  if (!profile || (profile.role !== "admin" && profile.role !== "teacher")) {
+  if (!profile || profile.role !== "admin") {
     return { ok: false, error: t("errors.forbidden") };
   }
 

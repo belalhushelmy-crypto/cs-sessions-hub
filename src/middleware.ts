@@ -101,11 +101,22 @@ export async function middleware(request: NextRequest) {
     return copyCookies(NextResponse.redirect(new URL(target, request.url)), response);
   }
 
-  // Protect admin/teacher routes
+  // Protect admin/teacher routes: students never enter the staff area.
   const isAdminArea = path === "/admin" || path.startsWith("/admin/");
   if (role && isAdminArea && role === "student") {
     return copyCookies(
       NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url)),
+      response,
+    );
+  }
+
+  // Admin-only sub-areas inside the staff area.
+  const isAdminOnly =
+    path === "/admin/roles" || path.startsWith("/admin/roles/") ||
+    path === "/admin/ai-grading" || path.startsWith("/admin/ai-grading/");
+  if (role === "teacher" && isAdminOnly) {
+    return copyCookies(
+      NextResponse.redirect(new URL(`/${locale}/admin`, request.url)),
       response,
     );
   }

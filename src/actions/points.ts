@@ -8,9 +8,9 @@ import { createClient } from "@/lib/supabase/server";
 import { pointsConfigSchema } from "@/lib/validation";
 import type { PointsConfigState } from "@/lib/types";
 
-async function isCurrentUserAdmin(): Promise<boolean> {
+async function isCurrentUserStaff(): Promise<boolean> {
   const profile = await getCurrentProfile();
-  return profile?.role === "admin";
+  return profile?.role === "admin" || profile?.role === "teacher";
 }
 
 function revalidatePoints(locale: string) {
@@ -28,7 +28,7 @@ export async function updatePointsConfigAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.points" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 
@@ -72,7 +72,7 @@ export async function resetWeeklyBoardAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.points" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 
@@ -98,7 +98,7 @@ export async function recalculateBadgesAction(
   const locale = toLocale(formData.get("locale"));
   const t = await getTranslations({ locale, namespace: "admin.points" });
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserStaff())) {
     return { status: "error", error: t("errors.forbidden") };
   }
 
