@@ -811,6 +811,24 @@
         "self": "You cannot change your own role.",
         "generic": "Could not update the role. Try again."
       }
+    },
+    "hub": {
+      "title": "Administration",
+      "subtitle": "Full platform control: accounts, roles, curriculum, grading and configuration.",
+      "students": "Students",
+      "studentsDesc": "Accounts, groups, responsible teachers and bulk import.",
+      "admins": "Admins & roles",
+      "adminsDesc": "Promote, demote and suspend committee staff.",
+      "attendance": "Attendance",
+      "attendanceDesc": "Session records, corrections and CSV export.",
+      "assignments": "Student assignments",
+      "assignmentsDesc": "Distribution across teachers and unassigned students.",
+      "ai": "AI providers",
+      "aiDesc": "Credentials, models, connectivity tests and usage.",
+      "settings": "Platform settings",
+      "settingsDesc": "Leaderboard, AI budget and registration policy.",
+      "overview": "Overview",
+      "overviewDesc": "Platform-wide statistics and activity."
     }
   },
   "checkIn": {

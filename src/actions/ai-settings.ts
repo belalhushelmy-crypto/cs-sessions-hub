@@ -82,12 +82,8 @@ export async function fetchAiModels(
   if (!key) return { ok: false, error: t("errors.missingKey") };
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",
-      {
-        headers: { "x-goog-api-key": key },
-        cache: "no-store",
-        signal: AbortSignal.timeout(15_000),
-      },
+      `https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key=${encodeURIComponent(key)}`,
+      { cache: "no-store", signal: AbortSignal.timeout(15_000) },
     );
     if (!response.ok) {
       return { ok: false, error: t("errors.fetchFailed", { status: response.status }) };
