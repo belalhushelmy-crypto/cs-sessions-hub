@@ -30,7 +30,7 @@ export default async function VerifyEmailPage({
         <div className="pointer-events-none absolute -bottom-32 -left-24 size-96 rounded-full bg-accent-500/20 blur-3xl" />
 
         <div className="relative z-10 flex items-center gap-3">
-          <BrandMark className="size-12" />
+          <BrandMark className="size-12" variant="dark" />
           <span className="text-sm font-semibold tracking-tight">{tc("appName")}</span>
         </div>
 

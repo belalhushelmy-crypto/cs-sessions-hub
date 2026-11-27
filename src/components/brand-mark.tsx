@@ -1,8 +1,19 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-export function BrandMark({ className, size = 9 }: { className?: string; size?: number }) {
+export function BrandMark({
+  className,
+  size = 9,
+  variant = "auto",
+}: {
+  className?: string;
+  size?: number;
+  /** "auto" follows the theme; "dark" is for always-dark panels. */
+  variant?: "auto" | "light" | "dark";
+}) {
   const sizeClass = `size-${size}`;
+  const darkClass = variant === "auto" ? "hidden dark:block" : variant === "dark" ? "block" : "hidden";
+  const lightClass = variant === "auto" ? "block dark:hidden" : variant === "light" ? "block" : "hidden";
 
   return (
     <span className={cn("flex shrink-0", className)} aria-hidden="true">
@@ -12,7 +23,7 @@ export function BrandMark({ className, size = 9 }: { className?: string; size?: 
         alt=""
         width={size * 4}
         height={size * 4}
-        className={cn("hidden dark:block", sizeClass)}
+        className={cn(darkClass, sizeClass)}
         priority
       />
       {/* Light mode logo */}
@@ -21,7 +32,7 @@ export function BrandMark({ className, size = 9 }: { className?: string; size?: 
         alt=""
         width={size * 4}
         height={size * 4}
-        className={cn("block dark:hidden", sizeClass)}
+        className={cn(lightClass, sizeClass)}
         priority
       />
     </span>
