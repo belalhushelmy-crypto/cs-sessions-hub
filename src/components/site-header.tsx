@@ -29,6 +29,7 @@ export function SiteHeader({ profile }: { profile: Profile }) {
           { href: "/admin/assignments", label: t("assignments") },
           { href: "/admin/attendance", label: t("attendance") },
           { href: "/admin/students", label: t("students") },
+          { href: "/admin/roles", label: t("roles") },
           { href: "/admin/analytics", label: t("analytics") },
           { href: "/admin/points", label: t("points") },
           { href: "/admin/announcements", label: t("announcements") },

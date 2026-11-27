@@ -46,7 +46,8 @@
     "points": "Points",
     "analytics": "Analytics",
     "announcements": "Announcements",
-    "accountMenu": "Account menu"
+    "accountMenu": "Account menu",
+    "roles": "Roles"
   },
   "roles": {
     "admin": "Admin",
@@ -759,6 +760,28 @@
         "lookupFailed": "Could not look up students.",
         "insertFailed": "Could not record attendance.",
         "removeFailed": "Could not remove student."
+      }
+    },
+    "roles": {
+      "title": "Roles",
+      "subtitle": "Change any account's role. You cannot change your own.",
+      "listTitle": "All accounts",
+      "colStudent": "Account",
+      "colCode": "Code",
+      "colRole": "Role",
+      "roleStudent": "Student",
+      "roleTeacher": "Teacher",
+      "roleAdmin": "Admin",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Role updated.",
+      "loadError": "Could not load accounts.",
+      "empty": "No accounts found.",
+      "errors": {
+        "forbidden": "Only admins can change roles.",
+        "invalid": "Invalid role.",
+        "self": "You cannot change your own role.",
+        "generic": "Could not update the role. Try again."
       }
     }
   },
