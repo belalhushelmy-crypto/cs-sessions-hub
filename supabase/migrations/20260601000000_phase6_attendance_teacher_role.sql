@@ -331,7 +331,7 @@ as $$
     select 1
     from public.profiles p
     where p.id = (select auth.uid())
-      and p.role in ('teacher', 'admin')::public.user_role[]
+      and p.role in ('teacher', 'admin')
   );
 $$;
 

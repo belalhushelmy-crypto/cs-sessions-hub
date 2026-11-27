@@ -47,7 +47,7 @@ create policy "submissions_student_insert_own" on public.submissions
         and (a.deadline is null or a.deadline > now())
         and (
           a.allowed_submission_types = 'both'
-          or a.allowed_submission_types = (select submission_type::text from (select new.submission_type as submission_type) t)
+          or a.allowed_submission_types::text = submission_type::text
         )
     )
   );
