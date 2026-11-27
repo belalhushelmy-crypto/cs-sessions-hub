@@ -5,6 +5,7 @@ import { AssignmentForm } from "@/components/admin/assignment-form";
 import { CsvDownloadButton } from "@/components/admin/csv-download-button";
 import { DeleteAssignmentForm } from "@/components/admin/delete-assignment-form";
 import { GradePendingButton } from "@/components/admin/grade-pending-button";
+import { AiGradingSettings } from "@/components/admin/ai-grading-settings";
 import { SimilarityPanel } from "@/components/admin/similarity-panel";
 import {
   Alert,
@@ -18,7 +19,8 @@ import {
 import { requireAdmin } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
-import { gradingStatus } from "@/lib/grading/service";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { gradingStatusAsync } from "@/lib/grading/gemini";
 import { formatDate, formatNumber, initials } from "@/lib/utils";
 import { idSchema } from "@/lib/validation";
 import type { AssignmentOverview, SimilarityPair, SubmissionStatus } from "@/lib/types";
@@ -103,8 +105,14 @@ export default async function AdminAssignmentPage({
     (row) => row.assignment_id === assignment.id,
   );
   const similarityPairs = (similarityResult.data ?? []) as SimilarityPair[];
-  const grading = gradingStatus();
+  const grading = await gradingStatusAsync();
   const maxScore = Number(assignment.max_score) || 100;
+
+  const { data: aiSettings } = await createAdminClient()
+    .from("ai_grading_settings")
+    .select("api_key, model")
+    .eq("id", true)
+    .maybeSingle();
 
   // Attempt numbers per student (1 = first upload).
   const byStudent = new Map<string, SubmissionRow[]>();
@@ -215,6 +223,12 @@ export default async function AdminAssignmentPage({
         />
 
         <div className="space-y-6">
+          <AiGradingSettings
+            locale={locale}
+            currentModel={aiSettings?.model ?? grading.model}
+            hasKey={Boolean(aiSettings?.api_key)}
+          />
+
           <Card>
             <CardHeader title={t("gradingTitle")} description={t("gradingSubtitle")} />
             <div className="space-y-4 p-5">

@@ -13,7 +13,7 @@ import {
 import { requireAdmin } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
-import { gradingStatus } from "@/lib/grading/service";
+import { gradingStatusAsync } from "@/lib/grading/gemini";
 import { formatDate, formatNumber, stringList } from "@/lib/utils";
 import { idSchema } from "@/lib/validation";
 import type { SubmissionStatus } from "@/lib/types";
@@ -81,7 +81,7 @@ export default async function SubmissionReviewPage({
   const aiScore = data.ai_score === null ? null : Number(data.ai_score);
   const finalScore = data.final_score === null ? null : Number(data.final_score);
   const issues = stringList(data.ai_issues);
-  const grading = gradingStatus();
+  const grading = await gradingStatusAsync();
 
   const { data: signed } = await supabase.storage
     .from("submissions")

@@ -69,6 +69,24 @@ export default async function StudentAttendancePage({
   ]);
 
   const sessions = sessionsResult.data ?? [];
+  const sessionIds = sessions.map((session) => session.id);
+  const filesResult = sessionIds.length
+    ? await supabase
+        .from("session_files")
+        .select("session_id, file_name, file_path")
+        .in("session_id", sessionIds)
+        .order("created_at", { ascending: false })
+    : { data: [], error: null };
+  const filesBySession = new Map<string, Array<{ name: string; url: string }>>();
+  for (const file of filesResult.data ?? []) {
+    const list = filesBySession.get(file.session_id) ?? [];
+    list.push({
+      name: file.file_name,
+      url: supabase.storage.from("session-materials").getPublicUrl(file.file_path).data.publicUrl,
+    });
+    filesBySession.set(file.session_id, list);
+  }
+
   const statusBySession = new Map(
     (attendanceResult.data ?? []).map((row) => [row.session_id, row.status]),
   );
@@ -134,6 +152,23 @@ export default async function StudentAttendancePage({
                         <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                           {formatDate(session.session_date, locale)}
                         </p>
+                        {(filesBySession.get(session.id) ?? []).length > 0 ? (
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                              {t("sessionFiles")}
+                            </span>
+                            {(filesBySession.get(session.id) ?? []).map((file) => (
+                              <a
+                                key={file.url}
+                                href={file.url}
+                                download={file.name}
+                                className="inline-flex items-center rounded-lg bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700 transition hover:bg-primary-100 dark:bg-primary-500/10 dark:text-primary-300"
+                              >
+                                {file.name}
+                              </a>
+                            ))}
+                          </div>
+                        ) : null}
                       </td>
                       <td className="px-5 py-3.5">
                         <span

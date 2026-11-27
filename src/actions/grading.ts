@@ -6,7 +6,7 @@ import { getCurrentProfile } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
 import { gradingRequestSchema, idSchema } from "@/lib/validation";
-import { isGradingConfigured } from "@/lib/grading/gemini";
+import { isGradingConfiguredAsync } from "@/lib/grading/gemini";
 import {
   gradePendingForAssignment,
   gradeSubmissionById,
@@ -115,7 +115,7 @@ export async function gradePendingAction(
     return { status: "error", error: t("errors.invalid") };
   }
 
-  if (!isGradingConfigured()) {
+  if (!(await isGradingConfiguredAsync())) {
     return { status: "error", error: tr("errors.gradingNotConfigured") };
   }
 

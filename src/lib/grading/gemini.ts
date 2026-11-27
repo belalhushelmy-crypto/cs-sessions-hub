@@ -2,6 +2,7 @@ import "server-only";
 import { gradingResponseSchema, type GradingInput, type GradingResponse } from "./schema";
 import { MOCK_MODEL, mockGrade } from "./mock";
 import { buildSystemPrompt, buildUserPrompt } from "./prompt";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const DEFAULT_MODEL = "gemini-2.5-flash";
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -49,6 +50,49 @@ export function gradingConfig(): GradingConfig {
 export function isGradingConfigured(): boolean {
   const config = gradingConfig();
   return Boolean(config.apiKey) || config.mock;
+}
+
+/** Teacher/admin key + selected model stored in the database, env as fallback. */
+async function storedGradingConfig(): Promise<GradingConfig | null> {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from("ai_grading_settings")
+      .select("api_key, model")
+      .eq("id", true)
+      .maybeSingle();
+    if (!data?.api_key) return null;
+    return {
+      apiKey: data.api_key,
+      model: data.model?.trim() || DEFAULT_MODEL,
+      mock: false,
+    };
+  } catch (error) {
+    console.error("AI grading settings lookup failed:", error);
+    return null;
+  }
+}
+
+export async function effectiveGradingConfig(): Promise<GradingConfig> {
+  return (await storedGradingConfig()) ?? gradingConfig();
+}
+
+export async function isGradingConfiguredAsync(): Promise<boolean> {
+  const config = await effectiveGradingConfig();
+  return Boolean(config.apiKey) || config.mock;
+}
+
+export async function gradingStatusAsync(): Promise<{
+  configured: boolean;
+  mock: boolean;
+  model: string;
+}> {
+  const config = await effectiveGradingConfig();
+  return {
+    configured: Boolean(config.apiKey) || config.mock,
+    mock: config.mock,
+    model: config.model,
+  };
 }
 
 const RESPONSE_SCHEMA = {
@@ -162,7 +206,7 @@ export async function gradeCode(
   input: GradingInput,
   options: { maxAttempts?: number } = {},
 ): Promise<GradeCodeResult> {
-  const config = gradingConfig();
+  const config = await effectiveGradingConfig();
 
   if (config.mock) {
     return { response: mockGrade(input), model: MOCK_MODEL, mock: true };

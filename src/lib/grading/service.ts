@@ -2,7 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SubmissionStatus } from "@/lib/types";
-import { GradingError, gradeCode, gradingConfig, isGradingConfigured } from "./gemini";
+import { GradingError, gradeCode, gradingConfig, isGradingConfiguredAsync } from "./gemini";
 import { parseFileForGrading } from "./files";
 import type { GradingAttachment } from "./schema";
 
@@ -80,7 +80,7 @@ export async function gradeSubmissionById(
   submissionId: string,
   options: { force?: boolean; maxAttempts?: number } = {},
 ): Promise<GradeOutcome> {
-  if (!isGradingConfigured()) {
+  if (!(await isGradingConfiguredAsync())) {
     return { ok: false, reason: "config", message: "Grading is not configured." };
   }
 

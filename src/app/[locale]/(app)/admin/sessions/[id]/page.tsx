@@ -8,6 +8,7 @@ import { CodePanel } from "@/components/admin/code-panel";
 import { CsvDownloadButton } from "@/components/admin/csv-download-button";
 import { DeleteSessionForm } from "@/components/admin/delete-session-form";
 import { EditSessionForm } from "@/components/admin/edit-session-form";
+import { SessionFilesManager } from "@/components/admin/session-files-manager";
 import { Alert, Card, PageHeader, buttonSecondary } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { toLocale } from "@/lib/locale";
@@ -36,6 +37,14 @@ type AttendanceRow = {
   status: AttendanceStatus;
 };
 
+type SessionFileRow = {
+  id: string;
+  file_path: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+};
+
 export default async function AdminSessionPage({
   params,
 }: {
@@ -54,7 +63,7 @@ export default async function AdminSessionPage({
   const tc = await getTranslations("common");
 
   const supabase = await createClient();
-  const [sessionsResult, studentsResult, attendanceResult] = await Promise.all([
+  const [sessionsResult, studentsResult, attendanceResult, filesResult] = await Promise.all([
     supabase.rpc("admin_list_sessions"),
     supabase
       .from("profiles")
@@ -67,6 +76,12 @@ export default async function AdminSessionPage({
       .select("student_id, status")
       .eq("session_id", sessionId.data)
       .returns<AttendanceRow[]>(),
+    supabase
+      .from("session_files")
+      .select("id, file_path, file_name, content_type, size_bytes")
+      .eq("session_id", sessionId.data)
+      .order("created_at", { ascending: false })
+      .returns<SessionFileRow[]>(),
   ]);
 
   const session = ((sessionsResult.data ?? []) as AdminSessionRow[]).find(
@@ -111,8 +126,16 @@ export default async function AdminSessionPage({
   }
 
   const hasError = Boolean(
-    sessionsResult.error || studentsResult.error || attendanceResult.error,
+    sessionsResult.error || studentsResult.error || attendanceResult.error || filesResult.error,
   );
+
+  const sessionFiles = (filesResult.data ?? []).map((file) => ({
+    id: file.id,
+    name: file.file_name,
+    size: Number(file.size_bytes),
+    contentType: file.content_type,
+    url: supabase.storage.from("session-materials").getPublicUrl(file.file_path).data.publicUrl,
+  }));
 
   return (
     <div className="space-y-6">
@@ -144,6 +167,12 @@ export default async function AdminSessionPage({
         active={active}
         qrDataUrl={qrDataUrl}
         checkInUrl={checkInUrl}
+      />
+
+      <SessionFilesManager
+        locale={locale}
+        sessionId={session.id}
+        files={sessionFiles}
       />
 
       <AttendanceForm

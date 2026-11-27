@@ -829,7 +829,8 @@
     "note": "Attendance is recorded by your teacher.",
     "loadError": "Could not load your attendance. Refresh the page.",
     "colSession": "Session",
-    "colStatus": "Status"
+    "colStatus": "Status",
+    "sessionFiles": "Files"
   },
   "submissionStatus": {
     "pending": "Pending grading",
@@ -984,5 +985,45 @@
     "error": "Export unavailable.",
     "forbidden": "You do not have permission to export.",
     "failed": "Could not build the export."
+  },
+  "sessionFiles": {
+    "title": "Session files",
+    "subtitle": "Upload slides, notebooks, scripts or images for this session (max 100 MB per file).",
+    "choose": "Choose files",
+    "hint": ".pptx, .pdf, .ipynb, .py, PNG/JPG/WebP · max 100 MB per file",
+    "empty": "No files uploaded for this session yet.",
+    "download": "Download",
+    "delete": "Delete",
+    "errors": {
+      "forbidden": "Only teachers and admins can manage session files.",
+      "invalid": "Invalid request.",
+      "notFound": "Session or file not found.",
+      "invalidFile": "File type or size is not allowed (max 100 MB).",
+      "upload": "Could not upload the file. Please try again.",
+      "save": "Could not save the file record."
+    }
+  },
+  "aiGrading": {
+    "title": "AI grading",
+    "subtitle": "Use your own API key and choose which model grades submissions.",
+    "keyConfigured": "Key saved · grading model: {model}",
+    "keyMissing": "No API key saved yet. Add one below or use the server key.",
+    "apiKeyLabel": "API key",
+    "apiKeyKeep": "Leave blank to keep the saved key",
+    "apiKeyPlaceholder": "AIza...",
+    "apiKeyHint": "Stored server-side and never shown to students.",
+    "fetchModels": "Fetch models",
+    "modelLabel": "Grading model",
+    "noModel": "No model selected",
+    "save": "Save AI settings",
+    "saved": "AI settings saved.",
+    "errors": {
+      "forbidden": "Only teachers and admins can change grading settings.",
+      "missingKey": "Enter an API key first.",
+      "missingModel": "Choose a model first.",
+      "fetchFailed": "Could not fetch models ({status}).",
+      "noModels": "This key has no compatible grading models.",
+      "saveFailed": "Could not save the AI settings."
+    }
   }
 }

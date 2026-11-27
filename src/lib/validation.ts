@@ -102,6 +102,13 @@ export const TASK_FILE_EXTENSIONS = [
   ".ipynb", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf",
 ] as const;
 
+export const SESSION_FILE_EXTENSIONS = [
+  ".pptx", ".pdf", ".ipynb", ".py", ".png", ".jpg", ".jpeg", ".webp",
+] as const;
+
+/** Session materials may be up to 100 MB. */
+export const MAX_SESSION_FILE_BYTES = 100 * 1024 * 1024;
+
 export function fileExtension(name: string): string {
   const dot = name.lastIndexOf(".");
   return dot < 0 ? "" : name.slice(dot).toLowerCase();
@@ -118,6 +125,7 @@ export function mimeForExtension(extension: string): string {
   const types: Record<string, string> = {
     ".py": "text/x-python",
     ".ipynb": "application/x-ipynb+json",
+    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     ".png": "image/png",
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
